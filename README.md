@@ -1,2 +1,1 @@
 # idealik
-# idealik
