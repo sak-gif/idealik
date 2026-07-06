@@ -5,9 +5,22 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SparkleDecor from '@/components/SparkleDecor';
-import { useLanguage } from '@/context/LanguageContext';
+import { useLanguage, Language } from '@/context/LanguageContext';
 
-const translations = {
+type PrivacySection = {
+  title: string;
+  content: string;
+  bullets?: string[];
+};
+
+type PrivacyTranslation = {
+  back: string;
+  title: string;
+  subtitle: string;
+  sections: PrivacySection[];
+};
+
+const translations: Record<Language, PrivacyTranslation> = {
   EN: {
     back: '← Back to Home',
     title: 'Privacy Policy',
@@ -127,7 +140,7 @@ const translations = {
         content: 'بخصوص مخاوف الخصوصية، يمكن للمستخدمين الاتصال بدعم iDAELİK.',
       }
     ]
-  }
+  },
 };
 
 export default function PrivacyPage() {

@@ -22,7 +22,7 @@ interface Appointment {
   id?: number;
   date: string; // YYYY-MM-DD
   time: string; // HH:mm
-  status: 'confirmed' | 'pending';
+  status: 'confirmed' | 'pending' | 'blocked';
   clientName?: string;
   email?: string;
   phone?: string;

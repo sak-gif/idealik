@@ -2,28 +2,13 @@
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
-export type Language = 'EN' | 'AR' | 'TR' | 'FR';
+export type Language = 'EN' | 'AR' | 'TR';
 
 interface Translations {
   [key: string]: string;
 }
 
 const translations: Record<Language, Translations> = {
-  FR: {
-    // Basic French translations (falling back to English for missing)
-    'nav.about': 'À propos de idealik',
-    'nav.contact': 'Contacter le support',
-    'nav.terms': 'Conditions d\'utilisation',
-    'landing.title': 'Prise de rendez-vous intelligente pour les entreprises modernes',
-    'auth.signIn': 'Se connecter',
-    'booking.fullName': 'Nom complet',
-    'booking.email': 'Adresse e-mail',
-    'booking.phone': 'Numéro de téléphone',
-    'booking.submit': 'Soumettre la réservation',
-    'customer.bio': 'Médecin de premier recours et conseiller médical compatissant.',
-    'services.price': 'Prix',
-    'services.telehealth': 'Consultation en télésanté',
-  },
   EN: {
     // Header / Nav
     'nav.about': 'About idealik',

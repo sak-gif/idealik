@@ -5,9 +5,19 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SparkleDecor from '@/components/SparkleDecor';
-import { useLanguage } from '@/context/LanguageContext';
+import { useLanguage, Language } from '@/context/LanguageContext';
 
-const translations = {
+type AboutTranslation = {
+  back: string;
+  title: string;
+  p1: string;
+  p2: string;
+  p3: string;
+  p4: string;
+  p5: string;
+};
+
+const translations: Record<Language, AboutTranslation> = {
   EN: {
     back: '← Back to Home',
     title: 'About iDAELİK',
@@ -34,7 +44,7 @@ const translations = {
     p3: 'تتيح منصتنا للعملاء حجز المواعيد على الفور، مع منح أصحاب الأعمال التحكم الكامل في جداولهم، وتوافرهم، وإدارة عملائهم.',
     p4: 'نحن نركز على البساطة والسرعة والموثوقية. سواء كنت حلاقًا أو مدربًا أو مستشارًا أو مقدم خدمة، فإن iDAELİK يساعدك على البقاء منظمًا وتنمية عملك.',
     p5: 'مهمتنا هي تمكين الشركات من الذهاب إلى ما هو أبعد من الحدود والعمل بكفاءة أكبر في العالم الرقمي.',
-  }
+  },
 };
 
 export default function AboutPage() {

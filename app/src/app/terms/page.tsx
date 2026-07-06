@@ -5,9 +5,21 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SparkleDecor from '@/components/SparkleDecor';
-import { useLanguage } from '@/context/LanguageContext';
+import { useLanguage, Language } from '@/context/LanguageContext';
 
-const translations = {
+type TermsSection = {
+  title: string;
+  content: string;
+};
+
+type TermsTranslation = {
+  back: string;
+  title: string;
+  subtitle: string;
+  sections: TermsSection[];
+};
+
+const translations: Record<Language, TermsTranslation> = {
   EN: {
     back: '← Back to Home',
     title: 'Terms & Conditions',
@@ -148,7 +160,7 @@ const translations = {
         content: 'للحصول على الدعم، يمكن للمستخدمين الاتصال بفريق دعم iDAELİK.'
       }
     ]
-  }
+  },
 };
 
 export default function TermsPage() {

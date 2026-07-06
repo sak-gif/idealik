@@ -102,7 +102,7 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
 
   const loc = localLangs[language as 'EN' | 'TR' | 'AR'] || localLangs['EN'];
 
-  const [daysOfWeek, setDaysOfWeek] = useState<{name: string, date: string, isoDate: string}[]>([]);
+  const [daysOfWeek, setDaysOfWeek] = useState<{name: string, date: string, isoDate: string, fullDayName: string}[]>([]);
   const [timeSlots, setTimeSlots] = useState<string[]>([]);
   const [slots, setSlots] = useState<Slot[]>([]);
   const [services, setServices] = useState<any[]>([]);
@@ -140,7 +140,7 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
 
       // Generate DaysOfWeek
       const weekendDays = (config.weekendDays || '').toUpperCase().split(',').map((d: string) => d.trim());
-      const days: {name: string, date: string, isoDate: string}[] = [];
+      const days: {name: string, date: string, isoDate: string, fullDayName: string}[] = [];
       let currentDate = new Date();
       currentDate.setHours(0, 0, 0, 0);
       let count = 0;
