@@ -81,13 +81,23 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
+      // Send email OTP via backend
+      const res = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      if (!res.ok) {
+        throw new Error('Failed to send verification email');
+      }
+
       // Save registration data temporarily
       sessionStorage.setItem('idealik_pending_registration', JSON.stringify({
         businessName, email, phoneNumber, password
       }));
 
-      // Redirect to SMS verification page with phone number
-      window.location.href = `/verify-email?phone=${encodeURIComponent(phoneNumber)}&action=register`;
+      // Redirect to email verification page
+      window.location.href = `/verify-email?email=${encodeURIComponent(email)}&action=register`;
     } catch (err: any) {
       setError(err.message || 'An error occurred. Please try again.');
     } finally {

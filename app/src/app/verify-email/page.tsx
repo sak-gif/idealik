@@ -1,19 +1,17 @@
 'use client';
 export const dynamic = 'force-dynamic';
 
-import React, { useState, useEffect, useRef, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Phone, ArrowRight, ShieldCheck, ArrowLeft, Loader2 } from 'lucide-react';
+import { Mail, ArrowRight, ShieldCheck, ArrowLeft, Loader2 } from 'lucide-react';
 import SparkleDecor from '@/components/SparkleDecor';
-import { auth, setupRecaptcha, sendSmsOtp, verifySmsOtp, type ConfirmationResult } from '@/lib/firebase';
-import { RecaptchaVerifier } from 'firebase/auth';
 
-function VerifyPhoneContent() {
+function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [step, setStep] = useState<'request' | 'verify'>('request');
   
@@ -23,9 +21,6 @@ function VerifyPhoneContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
-
-  const confirmationResultRef = useRef<ConfirmationResult | null>(null);
-  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
 
   const getPasswordStrength = (pw: string) => {
     if (!pw) return null;
@@ -42,52 +37,35 @@ function VerifyPhoneContent() {
     return { label: 'Strong', color: '#22c55e', pct: '100%' };
   };
 
-  // Format phone number to E.164 if it doesn't start with +
-  const formatPhone = (p: string) => {
-    const cleaned = p.trim();
-    if (cleaned.startsWith('+')) return cleaned;
-    // Default to +1 (US) if no country code; user should input with country code
-    return `+${cleaned}`;
-  };
-
-  // Auto-fill phone if passed via URL
   useEffect(() => {
-    const urlPhone = searchParams.get('phone');
-    if (urlPhone) {
-      setPhone(urlPhone);
+    const urlEmail = searchParams.get('email');
+    if (urlEmail) {
+      setEmail(urlEmail);
     }
   }, [searchParams]);
 
-  const handleSendOtp = async (targetPhone: string) => {
-    if (!targetPhone) {
-      setError('Please enter your phone number.');
+  const handleSendOtp = async (targetEmail: string) => {
+    if (!targetEmail) {
+      setError('Please enter your email address.');
       return;
     }
     setLoading(true);
     setError('');
     setSuccessMsg('');
     try {
-
-      // Setup reCAPTCHA
-      const verifier = setupRecaptcha('send-otp-btn');
-      recaptchaVerifierRef.current = verifier;
-
-      // Send SMS OTP via Firebase
-      const formattedPhone = formatPhone(targetPhone);
-      const result = await sendSmsOtp(formattedPhone, verifier);
-      confirmationResultRef.current = result;
+      const res = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: targetEmail })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to send verification code.');
       
-      setSuccessMsg('Verification code sent! Please check your SMS.');
+      setSuccessMsg('Verification code sent! Please check your email.');
       setStep('verify');
     } catch (err: any) {
-      console.error('SMS send error:', err);
-      if (err.code === 'auth/invalid-phone-number') {
-        setError('Invalid phone number. Please include country code (e.g. +1234567890).');
-      } else if (err.code === 'auth/too-many-requests') {
-        setError('Too many attempts. Please try again later.');
-      } else {
-        setError(err.message || 'Failed to send verification code.');
-      }
+      console.error('Email send error:', err);
+      setError(err.message || 'Failed to send verification code.');
     } finally {
       setLoading(false);
     }
@@ -117,23 +95,11 @@ function VerifyPhoneContent() {
     setLoading(true);
     setError('');
     try {
-      // Verify SMS OTP via Firebase
-      if (!confirmationResultRef.current) {
-        throw new Error('No verification session found. Please resend the code.');
-      }
-
-      const isValid = await verifySmsOtp(confirmationResultRef.current, code);
-      if (!isValid) {
-        throw new Error('Invalid verification code. Please try again.');
-      }
-
-      // If forgot-password, call backend to reset password
       if (action === 'forgot-password') {
-        const email = searchParams.get('email') || '';
-        const res = await fetch('/api/auth/reset-password-by-phone', {
+        const res = await fetch('/api/auth/reset-password', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ phone: formatPhone(phone), newPassword })
+          body: JSON.stringify({ email, otp: code, newPassword })
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || 'Password reset failed.');
@@ -143,9 +109,17 @@ function VerifyPhoneContent() {
         return;
       }
 
-      // If registering, complete registration
+      // Verify OTP standard
+      const res = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp: code })
+      });
+      const verifyData = await res.json();
+      if (!res.ok) throw new Error(verifyData.message || 'Invalid verification code.');
+
       if (action === 'register') {
-        setSuccessMsg('Phone verified successfully! Completing registration...');
+        setSuccessMsg('Email verified successfully! Completing registration...');
         
         const pendingData = sessionStorage.getItem('idealik_pending_registration');
         if (pendingData) {
@@ -176,7 +150,6 @@ function VerifyPhoneContent() {
         }
       }
 
-      // Default redirect
       setSuccessMsg('Verified successfully! Redirecting...');
       setTimeout(() => router.push('/login'), 2000);
 
@@ -188,13 +161,12 @@ function VerifyPhoneContent() {
   };
 
   const handleOtpChange = (index: number, value: string) => {
-    if (!/^\d*$/.test(value)) return; // Only allow digits
+    if (!/^\d*$/.test(value)) return;
 
     const newOtp = [...otp];
-    newOtp[index] = value.slice(-1); // Take only the last typed character
+    newOtp[index] = value.slice(-1);
     setOtp(newOtp);
 
-    // Auto-focus next input
     if (value && index < 5) {
       const nextInput = document.getElementById(`otp-${index + 1}`);
       nextInput?.focus();
@@ -202,7 +174,6 @@ function VerifyPhoneContent() {
   };
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Backspace auto-focuses previous input
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
       const prevInput = document.getElementById(`otp-${index - 1}`);
       prevInput?.focus();
@@ -212,18 +183,17 @@ function VerifyPhoneContent() {
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData('text/plain').trim();
-    if (!/^\d+$/.test(pastedData)) return; // ensure it's only digits
+    if (!/^\d+$/.test(pastedData)) return;
 
     const digits = pastedData.slice(0, 6).split('');
     const newOtp = [...otp];
     
     digits.forEach((digit, idx) => {
-      newOtp[idx] = digit;
+      if (idx < 6) newOtp[idx] = digit;
     });
     
     setOtp(newOtp);
 
-    // Auto-focus the last populated input
     const nextIndex = Math.min(digits.length, 5);
     const nextInput = document.getElementById(`otp-${nextIndex === 6 ? 5 : nextIndex}`);
     nextInput?.focus();
@@ -234,10 +204,9 @@ function VerifyPhoneContent() {
       <SparkleDecor />
       
       <div className="w-full max-w-md relative z-10 animate-fade-in">
-        {/* Back Button */}
         <button 
           onClick={() => {
-            if (step === 'verify' && !searchParams.get('phone')) {
+            if (step === 'verify' && !searchParams.get('email')) {
               setStep('request');
             } else {
               router.back();
@@ -249,26 +218,24 @@ function VerifyPhoneContent() {
           Back
         </button>
 
-        {/* Card */}
         <div className="card p-8 md:p-10 relative">
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-bl-[100px] -z-10" />
 
-          {/* Icon */}
           <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center mb-6 border border-primary/30 mx-auto">
             {step === 'request' ? (
-              <Phone className="w-7 h-7 text-primary-light" />
+              <Mail className="w-7 h-7 text-primary-light" />
             ) : (
               <ShieldCheck className="w-7 h-7 text-primary-light" />
             )}
           </div>
 
           <h1 className="text-3xl f-heading font-black text-text-main mb-2 text-center">
-            {step === 'request' ? 'Verify Phone' : 'Enter Code'}
+            {step === 'request' ? 'Verify Email' : 'Enter Code'}
           </h1>
           <p className="text-sm text-text-muted mb-8 leading-relaxed text-center">
             {step === 'request' 
-              ? 'Enter your phone number with country code to receive a secure 6-digit SMS verification code.'
-              : `We sent a 6-digit verification code via SMS to ${phone}. Enter it below.`}
+              ? 'Enter your email address to receive a secure 6-digit verification code.'
+              : `We sent a 6-digit verification code to ${email}. Enter it below.`}
           </p>
 
           {error && (
@@ -287,24 +254,22 @@ function VerifyPhoneContent() {
             <div className="space-y-6">
               <div>
                 <label className="block text-xs font-bold text-text-main uppercase tracking-wider mb-2">
-                  Phone Number
+                  Email Address
                 </label>
                 <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  readOnly={!!searchParams.get('phone')}
-                  className={`w-full bg-bg-main border border-outline-variant/30 rounded-xl px-4 py-3.5 text-text-main text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-text-muted/50 ${!!searchParams.get('phone') ? 'opacity-70 cursor-not-allowed' : ''}`}
-                  placeholder="+1234567890"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  readOnly={!!searchParams.get('email')}
+                  className={`w-full bg-bg-main border border-outline-variant/30 rounded-xl px-4 py-3.5 text-text-main text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-text-muted/50 ${!!searchParams.get('email') ? 'opacity-70 cursor-not-allowed' : ''}`}
+                  placeholder="hello@example.com"
                   required
                 />
-                <p className="text-xs text-text-muted mt-1.5">Include country code (e.g. +1 for US, +90 for TR)</p>
               </div>
 
               <button
-                id="send-otp-btn"
-                onClick={() => handleSendOtp(phone)}
-                disabled={loading || !phone}
+                onClick={() => handleSendOtp(email)}
+                disabled={loading || !email}
                 className="w-full btn-gold py-4 rounded-xl font-bold flex items-center justify-center gap-2 group"
               >
                 {loading ? (
@@ -410,8 +375,7 @@ function VerifyPhoneContent() {
 
                 <button
                   type="button"
-                  id="send-otp-btn-resend"
-                  onClick={() => handleSendOtp(phone)}
+                  onClick={() => handleSendOtp(email)}
                   disabled={loading}
                   className="w-full py-3 text-sm font-semibold text-text-light hover:text-primary transition-colors bg-transparent border-none"
                 >
@@ -422,21 +386,18 @@ function VerifyPhoneContent() {
           )}
         </div>
       </div>
-
-      {/* Hidden reCAPTCHA container */}
-      <div id="recaptcha-container" />
     </div>
   );
 }
 
-export default function VerifyPhonePage() {
+export default function VerifyEmailPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-bg-main flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     }>
-      <VerifyPhoneContent />
+      <VerifyEmailContent />
     </Suspense>
   );
 }
