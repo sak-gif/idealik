@@ -87,10 +87,16 @@ export default function RegisterPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
       });
-      const data = await res.json();
+      
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch {
+        // Response wasn't JSON (e.g. HTML error page from proxy)
+      }
       
       if (!res.ok) {
-        throw new Error(data.message || 'Failed to send verification email');
+        throw new Error(data.message || 'Server error. Please try again later.');
       }
 
       setSuccessMsg('Verification code sent! Please check your email.');
@@ -121,7 +127,12 @@ export default function RegisterPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, otp: code })
       });
-      const verifyData = await verifyRes.json();
+      let verifyData: any = {};
+      try {
+        verifyData = await verifyRes.json();
+      } catch {
+        // Response wasn't JSON
+      }
       if (!verifyRes.ok) {
         throw new Error(verifyData.message || 'Invalid verification code.');
       }
@@ -139,7 +150,12 @@ export default function RegisterPage() {
           password
         }),
       });
-      const registerData = await registerRes.json();
+      let registerData: any = {};
+      try {
+        registerData = await registerRes.json();
+      } catch {
+        // Response wasn't JSON
+      }
       
       if (registerRes.ok) {
         localStorage.setItem('idealik_token', registerData.token);
