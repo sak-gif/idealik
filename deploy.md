@@ -1,66 +1,111 @@
-# Deploying IDEALIK on Railway
+# Deploying IDEALIK on Render + Aiven
 
-This guide explains how to deploy the IDEALIK platform (both the Next.js Frontend and the Spring Boot Backend) on Railway.
+This guide explains how to deploy the IDEALIK platform (Next.js frontend + Spring Boot backend) using **Render** for hosting and **Aiven** for MySQL.
 
 ## Prerequisites
 
-1. Your code must be pushed to your GitHub repository (`https://github.com/sak-gif/idealik`).
-2. You need an account on [Railway](https://railway.app/).
-3. You need your Firebase project credentials.
+1. Your code is pushed to GitHub (`https://github.com/sak-gif/idealik`).
+2. A [Render](https://render.com/) account.
+3. An [Aiven](https://aiven.io/) account (free tier available).
+4. Your Firebase project credentials.
 
 ---
 
-## Step-by-Step Deployment
+## Part 1 — Create a MySQL Database on Aiven
 
-### Step 1: Create a New Project & Provision MySQL
-1. Log in to [Railway](https://railway.app/).
-2. Click the **"New Project"** button in the top right corner.
-3. Select **"Provision MySQL"** to add a database service to your project first. 
-   *(Railway will create a service called `MySQL` and populate variables like `MYSQL_URL`, `MYSQLUSER`, and `MYSQLPASSWORD` automatically.)*
+1. Log in to [Aiven Console](https://console.aiven.io/).
+2. Click **"Create service"**.
+3. Select **MySQL** as the service type.
+4. Choose the **Free** plan (or Hobbyist if you need more resources).
+5. Pick a cloud region close to your Render region (e.g., `google-europe-west1` or `aws-eu-west-1`).
+6. Click **"Create free service"**.
+7. Once the service is running, go to the **"Overview"** tab. You will see connection details:
+   - **Host** (e.g., `mysql-xxxx.aiven.io`)
+   - **Port** (e.g., `12345`)
+   - **User** (e.g., `avnadmin`)
+   - **Password** (auto-generated)
+   - **Database name** (default: `defaultdb`)
+8. Build the JDBC URL from these values:
+   ```
+   jdbc:mysql://<host>:<port>/<database>?useSSL=true&requireSSL=true&serverTimezone=UTC
+   ```
+   Example:
+   ```
+   jdbc:mysql://mysql-xxxxx.aiven.io:12345/defaultdb?useSSL=true&requireSSL=true&serverTimezone=UTC
+   ```
 
----
-
-### Step 2: Deploy the Backend (`idealik-backend`)
-1. In your project canvas, click **"New"** (or press `Cmd/Ctrl + K` -> **"New Service"**).
-2. Choose **"GitHub Repo"** and select your `idealik` repository.
-3. Once the service box appears on the canvas, click on it to open the settings panel.
-4. Rename the service to `idealik-backend` in the settings panel (top of the panel).
-5. Go to the **"Settings"** tab, scroll down to **"General"**, and locate **"Root Directory"**. Set it to:
-   `/backend`
-   *(Railway will automatically detect the `Dockerfile` inside the `/backend` directory and use it to build your Spring Boot app.)*
-6. Go to the **"Variables"** tab and add the following variables. Use Railway's reference syntax to link to the MySQL database:
-   - `SPRING_DATASOURCE_URL` ➔ `${{MySQL.MYSQL_URL}}`
-   - `SPRING_DATASOURCE_USERNAME` ➔ `${{MySQL.MYSQLUSER}}`
-   - `SPRING_DATASOURCE_PASSWORD` ➔ `${{MySQL.MYSQLPASSWORD}}`
-   - `FRONTEND_URL` ➔ `https://${{idealik-frontend.RAILWAY_PUBLIC_DOMAIN}}`
-7. Go back to the **"Settings"** tab, scroll down to **"Networking"**, and click **"Generate Domain"** to get a public URL for your backend.
-
----
-
-### Step 3: Deploy the Frontend (`idealik-frontend`)
-1. Click **"New"** on your project canvas again.
-2. Select **"GitHub Repo"** and select the same `idealik` repository.
-3. Click on the new service and rename it to `idealik-frontend`.
-4. Go to the **"Settings"** tab, scroll down to **"General"**, and set the **"Root Directory"** to:
-   `/app`
-   *(Railway will detect the Next.js project and automatically configure the node build command.)*
-5. Go to the **"Variables"** tab and add the following environment variables:
-   - `NEXT_PUBLIC_API_URL` ➔ `https://${{idealik-backend.RAILWAY_PUBLIC_DOMAIN}}`
-   - `NEXT_PUBLIC_FIREBASE_API_KEY` ➔ *(Your Firebase API Key)*
-   - `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` ➔ *(Your Firebase Auth Domain)*
-   - `NEXT_PUBLIC_FIREBASE_PROJECT_ID` ➔ *(Your Firebase Project ID)*
-6. Go back to the **"Settings"** tab, scroll down to **"Networking"**, and click **"Generate Domain"** to generate the public URL for your user interface.
+> **Keep these credentials handy — you will paste them into Render in Step 3.**
 
 ---
 
-### Step 4: Redeploy Services
-After you have filled in all the environment variables (especially the Firebase variables on the frontend and the database references on the backend):
-1. Click on the `idealik-backend` service ➔ **"Deployments"** ➔ click the **"Redeploy"** button (or three dots next to the active deployment).
-2. Click on the `idealik-frontend` service ➔ **"Deployments"** ➔ click the **"Redeploy"** button.
+## Part 2 — Deploy to Render via Blueprint
+
+Because your repository has a `render.yaml` file, Render can auto-create both services.
+
+1. Log in to [Render Dashboard](https://dashboard.render.com/).
+2. Click **"New"** → **"Blueprint"**.
+3. Connect your GitHub account (if not already connected).
+4. Select the **`idealik`** repository.
+5. Render will detect the `render.yaml` and show two services:
+   - `idealik-frontend` (Node / Next.js)
+   - `idealik-backend` (Docker / Spring Boot)
+6. Click **"Apply"** to create both services.
+
+> The first deploy will fail because the environment variables are not set yet. That's normal.
 
 ---
 
-### Step 5: Verify and Launch
-1. Check the logs for `idealik-backend` to ensure Spring Boot starts up correctly and establishes a connection with MySQL.
-2. Check the logs for `idealik-frontend` to make sure Next.js builds and runs successfully.
-3. Click the generated public URL of your `idealik-frontend` service to open your fully deployed IDEALIK platform!
+## Part 3 — Set Environment Variables
+
+### Backend (`idealik-backend`)
+
+1. Go to your Render Dashboard → click on **`idealik-backend`**.
+2. Click the **"Environment"** tab.
+3. Add these variables using your Aiven credentials from Part 1:
+
+| Variable | Value |
+|---|---|
+| `SPRING_DATASOURCE_URL` | `jdbc:mysql://<host>:<port>/<database>?useSSL=true&requireSSL=true&serverTimezone=UTC` |
+| `SPRING_DATASOURCE_USERNAME` | `avnadmin` (or your Aiven user) |
+| `SPRING_DATASOURCE_PASSWORD` | Your Aiven password |
+
+> `FRONTEND_URL` is automatically set by `render.yaml` — no action needed.
+
+4. Click **"Save Changes"**.
+
+### Frontend (`idealik-frontend`)
+
+1. Go to your Render Dashboard → click on **`idealik-frontend`**.
+2. Click the **"Environment"** tab.
+3. Add these variables:
+
+| Variable | Value |
+|---|---|
+| `NEXT_PUBLIC_FIREBASE_API_KEY` | Your Firebase API Key |
+| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | Your Firebase Auth Domain |
+| `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | Your Firebase Project ID |
+
+> `NEXT_PUBLIC_API_URL` is automatically set by `render.yaml` — no action needed.
+
+4. Click **"Save Changes"**.
+
+---
+
+## Part 4 — Trigger Redeploy
+
+1. Go to **`idealik-backend`** → click **"Manual Deploy"** → **"Deploy latest commit"**.
+2. Go to **`idealik-frontend`** → click **"Manual Deploy"** → **"Deploy latest commit"**.
+
+---
+
+## Part 5 — Verify
+
+1. Check the **Logs** tab for `idealik-backend` — you should see Spring Boot starting and connecting to MySQL.
+2. Check the **Logs** tab for `idealik-frontend` — you should see Next.js building and starting.
+3. Click the public URL on `idealik-frontend` to open your live IDEALIK platform! 🎉
+
+---
+
+## Future Deployments
+
+Any push to the `main` branch on GitHub will automatically trigger Render to rebuild and redeploy both services.
