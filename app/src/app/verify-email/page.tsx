@@ -1,7 +1,7 @@
 'use client';
 export const dynamic = 'force-dynamic';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Phone, ArrowRight, ShieldCheck, ArrowLeft, Loader2 } from 'lucide-react';
@@ -9,7 +9,7 @@ import SparkleDecor from '@/components/SparkleDecor';
 import { auth, setupRecaptcha, sendSmsOtp, verifySmsOtp, type ConfirmationResult } from '@/lib/firebase';
 import { RecaptchaVerifier } from 'firebase/auth';
 
-export default function VerifyPhonePage() {
+function VerifyPhoneContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -426,5 +426,17 @@ export default function VerifyPhonePage() {
       {/* Hidden reCAPTCHA container */}
       <div id="recaptcha-container" />
     </div>
+  );
+}
+
+export default function VerifyPhonePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-bg-main flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    }>
+      <VerifyPhoneContent />
+    </Suspense>
   );
 }
