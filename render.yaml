@@ -1,0 +1,42 @@
+services:
+  # Next.js Frontend
+  - type: web
+    name: idealik-frontend
+    env: node
+    rootDir: app
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: idealik-backend
+          envVarKey: RENDER_EXTERNAL_URL
+      # Firebase Configuration (Set these directly in the Render Dashboard)
+      - key: NEXT_PUBLIC_FIREBASE_API_KEY
+        sync: false
+      - key: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+        sync: false
+      - key: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+        sync: false
+
+  # Spring Boot Backend
+  - type: web
+    name: idealik-backend
+    env: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    envVars:
+      # We allow the backend to accept requests from our new frontend URL
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: idealik-frontend
+          envVarKey: RENDER_EXTERNAL_URL
+      # Database Configuration (Set these directly in the Render Dashboard)
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false

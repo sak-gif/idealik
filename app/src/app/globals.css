@@ -1,0 +1,170 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-heading text-text-main bg-surface min-h-screen antialiased;
+    line-height: 1.6;
+  }
+}
+
+@layer components {
+  /* ──────────── REUSABLE COMPONENTS ──────────── */
+
+  /* ---------- Gold divider ---------- */
+  .gold-line {
+    @apply h-[2px] w-full;
+    background: linear-gradient(90deg, #C2A86F 0%, #705c2a 100%);
+  }
+
+  /* ---------- Cards ---------- */
+  .card {
+    @apply bg-white rounded-2xl shadow-card transition-all duration-300 p-6 md:p-8;
+  }
+
+  .card:hover {
+    @apply shadow-card-hover;
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn-gold {
+    @apply inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-primary text-white font-heading font-bold text-[15px] rounded-xl border-none cursor-pointer transition-all duration-200 tracking-wide;
+  }
+
+  .btn-gold:hover {
+    @apply bg-primary-dark -translate-y-[1px] shadow-md;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-transparent text-text-muted font-heading font-semibold text-[15px] rounded-xl border-[1.5px] border-outline-variant cursor-pointer transition-all duration-200;
+  }
+
+  .btn-outline:hover {
+    @apply border-primary text-primary-dark;
+    background: rgba(194, 168, 111, 0.05);
+  }
+
+  .btn-disabled {
+    @apply inline-flex items-center justify-center px-8 py-3.5 bg-[#D5D5D5] text-[#999] font-heading font-semibold text-[15px] rounded-xl border-none cursor-not-allowed;
+  }
+
+  /* ---------- Inputs ---------- */
+  .input-wrap {
+    @apply relative w-full;
+  }
+
+  .input-field {
+    @apply w-full bg-surface-input border-2 border-transparent rounded-xl px-4 py-3.5 pl-12 font-heading text-sm text-text-main transition-all duration-200 outline-none;
+  }
+
+  .input-field::placeholder {
+    @apply text-text-light;
+  }
+
+  .input-field:focus {
+    @apply border-primary bg-white;
+    box-shadow: 0 0 0 3px rgba(194, 168, 111, 0.15);
+  }
+
+  .input-field:hover:not(:focus) {
+    background: #ECECEC;
+  }
+
+  .input-no-icon {
+    @apply pl-4;
+  }
+
+  .input-icon {
+    @apply absolute left-4 top-1/2 -translate-y-1/2 text-text-light pointer-events-none w-5 h-5;
+  }
+
+  /* ---------- Toggle Switch ---------- */
+  .toggle-switch {
+    @apply relative w-12 h-[26px] rounded-full bg-[#D5D5D5] cursor-pointer transition-colors duration-300 shrink-0;
+  }
+
+  .toggle-switch.active {
+    @apply bg-primary;
+  }
+
+  .toggle-switch::after {
+    @apply content-[''] absolute w-5 h-5 rounded-full bg-white top-[3px] left-[3px] transition-transform duration-300 shadow-sm;
+  }
+
+  .toggle-switch.active::after {
+    @apply translate-x-[22px];
+  }
+
+  /* ---------- Select dropdowns ---------- */
+  .select-field {
+    @apply w-full bg-surface-input border-2 border-transparent rounded-xl px-4 py-3.5 pr-10 font-heading text-sm text-text-main appearance-none cursor-pointer transition-all duration-200 outline-none;
+  }
+
+  .select-field:focus {
+    @apply border-primary bg-white;
+  }
+
+  /* ---------- Layout helpers ---------- */
+  .page-container {
+    @apply max-w-[1340px] mx-auto px-6 w-full;
+  }
+}
+
+@layer utilities {
+  .f-heading {
+    font-family: 'Manrope', sans-serif;
+  }
+
+  .f-label {
+    font-family: 'Hanken Grotesk', sans-serif;
+  }
+
+  [dir="rtl"] {
+    text-align: right;
+  }
+
+  [dir="rtl"] .rtl-flip {
+    flex-direction: row-reverse;
+  }
+}
+
+/* ---------- Sparkle decorations ---------- */
+.sparkle-star {
+  position: absolute;
+  pointer-events: none;
+  animation: sparkle 3s ease-in-out infinite;
+}
+
+/* ---------- Scrollbar ---------- */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CFC5B6;
+  border-radius: 99px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #7E7669;
+}
