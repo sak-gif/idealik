@@ -3,7 +3,6 @@ package com.idealik.backend.service;
 import com.idealik.backend.model.OtpEntity;
 import com.idealik.backend.repository.OtpRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -23,28 +22,22 @@ public class OtpService {
     @Autowired
     private JavaMailSender mailSender;
 
-    private static final int OTP_DURATION_MINUTES = 3;
-
     @Transactional
     public void generateAndSendOtp(String email) {
-        // Clear any existing OTPs for this email to prevent spam/confusion
+        // Clear any existing OTPs for this email
         otpRepository.deleteByEmail(email);
 
         // Generate a 6-digit OTP
         String otp = String.format("%06d", new Random().nextInt(999999));
-        
-        // Save to database
-        OtpEntity otpEntity = new OtpEntity(email, otp, LocalDateTime.now().plusMinutes(OTP_DURATION_MINUTES));
-        otpRepository.save(otpEntity);
 
-        // Send HTML Email
+        // Send email FIRST — only save OTP if email succeeds
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             
             helper.setTo(email);
             helper.setSubject("Your iDAELİK Verification Code");
-            helper.setFrom("24070@supnum.mr");
+            helper.setFrom(System.getProperty("spring.mail.username", "24070@supnum.mr"));
             
             String htmlMsg = "<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
@@ -71,7 +64,7 @@ public class OtpService {
                 "        </div>\n" +
                 "        <div class=\"content\">\n" +
                 "            <h2>Verify Your Email</h2>\n" +
-                "            <p>You recently requested to verify your email address. Please use the verification code below to complete the process. This code is only valid for <strong>3 minutes</strong>.</p>\n" +
+                "            <p>Use the verification code below to complete the process. This code is only valid for <strong>10 minutes</strong>.</p>\n" +
                 "            <div class=\"otp-container\">\n" +
                 "                <p class=\"otp-code\">" + otp + "</p>\n" +
                 "            </div>\n" +
@@ -86,9 +79,13 @@ public class OtpService {
             
             helper.setText(htmlMsg, true);
             mailSender.send(message);
-        } catch (MessagingException e) {
-            throw new RuntimeException("Failed to send HTML email", e);
+        } catch (Exception e) {
+            throw new RuntimeException("Could not send verification email to " + email + ". Cause: " + e.getMessage(), e);
         }
+
+        // Only save OTP after email was sent successfully
+        OtpEntity otpEntity = new OtpEntity(email, otp, LocalDateTime.now().plusMinutes(10));
+        otpRepository.save(otpEntity);
     }
 
     @Transactional
