@@ -22,6 +22,9 @@ public class OtpService {
     @Autowired
     private JavaMailSender mailSender;
 
+    @Value("${spring.mail.username}")
+    private String senderEmail;
+
     @Transactional
     public void generateAndSendOtp(String email) {
         // Clear any existing OTPs for this email to prevent spam/confusion
@@ -41,7 +44,7 @@ public class OtpService {
             
             helper.setTo(email);
             helper.setSubject("Your iDAELİK Verification Code");
-            helper.setFrom(System.getProperty("spring.mail.username", "24070@supnum.mr"));
+            helper.setFrom(senderEmail);
             
             String htmlMsg = "<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
