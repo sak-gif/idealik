@@ -3,6 +3,7 @@ package com.idealik.backend.service;
 import com.idealik.backend.model.OtpEntity;
 import com.idealik.backend.repository.OtpRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.JavaMailSender;
