@@ -12,15 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
-import java.util.Map;
-import java.util.HashMap;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.ResponseEntity;
 
 @Service
 public class OtpService {
@@ -28,11 +19,8 @@ public class OtpService {
     @Autowired
     private OtpRepository otpRepository;
 
-    @Value("${RESEND_API_KEY:}")
-    private String resendApiKey;
-
-    @Value("${RESEND_FROM_EMAIL:onboarding@resend.dev}")
-    private String resendFromEmail;
+    @Autowired
+    private JavaMailSender mailSender;
 
     @Transactional
     public void generateAndSendOtp(String email) {
@@ -46,12 +34,15 @@ public class OtpService {
         OtpEntity otpEntity = new OtpEntity(email, otp, LocalDateTime.now().plusMinutes(10));
         otpRepository.save(otpEntity);
 
-        // Send HTML Email using Resend HTTP API
+        // Send HTML Email
         try {
-            if (resendApiKey == null || resendApiKey.isEmpty()) {
-                throw new RuntimeException("RESEND_API_KEY is not configured. Please add it to your environment variables on Render.");
-            }
-
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            
+            helper.setTo(email);
+            helper.setSubject("Your iDAELİK Verification Code");
+            helper.setFrom(System.getProperty("spring.mail.username", "24070@supnum.mr"));
+            
             String htmlMsg = "<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
                 "<head>\n" +
@@ -89,25 +80,9 @@ public class OtpService {
                 "    </div>\n" +
                 "</body>\n" +
                 "</html>\n";
-
-            RestTemplate restTemplate = new RestTemplate();
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setBearerAuth(resendApiKey);
-
-            Map<String, Object> requestBody = new HashMap<>();
-            requestBody.put("from", "iDAELİK <" + resendFromEmail + ">");
-            requestBody.put("to", new String[]{email});
-            requestBody.put("subject", "Your iDAELİK Verification Code");
-            requestBody.put("html", htmlMsg);
-
-            HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
-            ResponseEntity<String> response = restTemplate.postForEntity("https://api.resend.com/emails", request, String.class);
-
-            if (!response.getStatusCode().is2xxSuccessful()) {
-                throw new RuntimeException("Failed to send email via Resend API: " + response.getBody());
-            }
-
+            
+            helper.setText(htmlMsg, true);
+            mailSender.send(message);
         } catch (Exception e) {
             throw new RuntimeException("Failed to send HTML email", e);
         }
