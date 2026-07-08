@@ -323,7 +323,7 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
                   >
                     <Image src={svc.photoUrl || '/telehealth.png'} alt={svc.title} width={100} height={80} className="w-[90px] h-[72px] rounded-lg object-cover flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <h3 className="f-heading font-bold text-sm mb-1 text-text-main">{svc.title} - ${svc.price}</h3>
+                      <h3 className="f-heading font-bold text-sm mb-1 text-text-main">{svc.title}{svc.price ? ` - $${svc.price}` : ''}</h3>
                       <p className="text-xs leading-relaxed text-text-muted">{svc.description}</p>
                     </div>
                   </div>

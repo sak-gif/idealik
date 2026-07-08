@@ -230,7 +230,7 @@ export default function ServicesTab() {
         body: JSON.stringify({
           title: newTitle,
           description: newDesc,
-          price: parseFloat(newPrice),
+          price: newPrice.trim() !== '' ? parseFloat(newPrice) : null,
           photoUrl: newImage
         })
       });
@@ -426,7 +426,7 @@ export default function ServicesTab() {
                       className="px-3 py-1 rounded-md text-xs f-heading font-bold"
                       style={{ border: '1px solid #CFC5B6', color: '#1A1C1C', background: '#fff' }}
                     >
-                      ${svc.price}
+                      {svc.price ? `$${svc.price}` : 'Price not set'}
                     </span>
                   </div>
                 </div>
@@ -555,8 +555,7 @@ export default function ServicesTab() {
                   value={newPrice}
                   onChange={(e) => setNewPrice(e.target.value)}
                   className="input-field input-no-icon text-sm h-[46px]"
-                  placeholder="e.g. 120.00"
-                  required
+                  placeholder="e.g. 120.00 (Optional)"
                 />
               </div>
 

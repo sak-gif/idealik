@@ -18,7 +18,7 @@ public class ServiceEntity {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(precision = 10, scale = 2)
     private BigDecimal price;
 
     @Column(name = "photo_url", columnDefinition = "LONGTEXT")
