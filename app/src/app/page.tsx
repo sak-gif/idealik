@@ -160,8 +160,38 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* --- PRIVACY AND POLICY SECTION --- */}
+        <section id="privacy" className="py-24 bg-white">
+          <div className="page-container mx-auto px-6">
+            <div className="max-w-4xl mx-auto p-10 md:p-14">
+              <h2 className="f-heading font-extrabold text-3xl mb-8" style={{ color: '#1A1C1C' }}>Privacy & Policy</h2>
+              <div className="space-y-6 text-sm leading-relaxed" style={{ color: '#4C463A' }}>
+                <p>
+                  At iDAELİK, protecting your privacy is our priority. This Privacy Policy explains how we collect, use, and share your personal information when you use our platform.
+                </p>
+                <div>
+                  <h3 className="font-bold text-lg mb-2" style={{ color: '#1A1C1C' }}>Data Collection</h3>
+                  <p>When you register for an account or book an appointment, we collect information such as your name, email address, phone number, and any notes you provide. We also securely process authentication data via Firebase Phone Authentication.</p>
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg mb-2" style={{ color: '#1A1C1C' }}>Use of Information</h3>
+                  <p>Your data is exclusively used to facilitate bookings, send necessary SMS or email notifications (such as confirmations and OTP codes), and allow practitioners to manage their schedules. We do not sell your personal data to third parties.</p>
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg mb-2" style={{ color: '#1A1C1C' }}>Security</h3>
+                  <p>We implement industry-standard security measures, including HTTPS encryption and secure tokens, to protect against unauthorized access, alteration, or destruction of your personal data.</p>
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg mb-2" style={{ color: '#1A1C1C' }}>Your Rights</h3>
+                  <p>You have the right to access, update, or request the deletion of your personal data at any time by contacting our support team or using the account management tools provided in your dashboard.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* --- CONTACT US SECTION --- */}
-        <section id="contact" className="py-24 bg-white">
+        <section id="contact" className="py-24" style={{ background: '#F9F9F9' }}>
           <div className="page-container mx-auto px-6">
             <div className="max-w-5xl mx-auto">
               <div className="text-center mb-12">

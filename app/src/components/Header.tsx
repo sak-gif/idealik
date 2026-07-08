@@ -10,12 +10,32 @@ import { LogOut, Menu, X } from 'lucide-react';
 export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('home');
   const pathname = usePathname();
   const isCustomerPage = pathname?.startsWith('/booking');
 
   useEffect(() => {
     setIsLoggedIn(!!localStorage.getItem('idealik_token'));
-  }, []);
+
+    if (pathname === '/') {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      }, { rootMargin: '-30% 0px -70% 0px' }); // Trigger when section is in top 30%
+
+      const sections = document.querySelectorAll('section[id]');
+      sections.forEach(section => observer.observe(section));
+
+      return () => {
+        sections.forEach(section => observer.unobserve(section));
+      };
+    } else {
+      setActiveSection('');
+    }
+  }, [pathname]);
 
   const handleLogout = async () => {
     const token = localStorage.getItem('idealik_token');
@@ -54,10 +74,11 @@ export default function Header() {
 
         {/* Center: Desktop Nav */}
         <nav className="hidden lg:flex items-center gap-8 flex-1 justify-center">
-          <Link href="/#home" className="text-[15px] font-medium text-text-light hover:text-primary transition-colors">home</Link>
-          <Link href="/#about" className="text-[15px] font-medium text-text-light hover:text-primary transition-colors">about us</Link>
-          <Link href="/#terms" className="text-[15px] font-medium text-text-light hover:text-primary transition-colors">terms & conditions</Link>
-          <Link href="/#contact" className="text-[15px] font-medium text-text-light hover:text-primary transition-colors">contact us</Link>
+          <Link href="/#home" className={`text-[15px] font-medium transition-colors ${activeSection === 'home' ? 'text-primary' : 'text-text-light hover:text-primary'}`}>home</Link>
+          <Link href="/#about" className={`text-[15px] font-medium transition-colors ${activeSection === 'about' ? 'text-primary' : 'text-text-light hover:text-primary'}`}>about us</Link>
+          <Link href="/#terms" className={`text-[15px] font-medium transition-colors ${activeSection === 'terms' ? 'text-primary' : 'text-text-light hover:text-primary'}`}>terms & conditions</Link>
+          <Link href="/#privacy" className={`text-[15px] font-medium transition-colors ${activeSection === 'privacy' ? 'text-primary' : 'text-text-light hover:text-primary'}`}>privacy & policy</Link>
+          <Link href="/#contact" className={`text-[15px] font-medium transition-colors ${activeSection === 'contact' ? 'text-primary' : 'text-text-light hover:text-primary'}`}>contact us</Link>
         </nav>
 
         {/* Right: Actions */}
@@ -102,10 +123,11 @@ export default function Header() {
       {/* Mobile Menu Dropdown */}
       {isMobileMenuOpen && (
         <div className="lg:hidden absolute top-full left-0 w-full bg-white border-t border-outline-variant/20 shadow-xl py-4 px-6 flex flex-col gap-4 animate-in slide-in-from-top-2">
-          <Link href="/#home" onClick={() => setIsMobileMenuOpen(false)} className="text-base font-medium text-text-main hover:text-primary py-2 border-b border-outline-variant/10">home</Link>
-          <Link href="/#about" onClick={() => setIsMobileMenuOpen(false)} className="text-base font-medium text-text-main hover:text-primary py-2 border-b border-outline-variant/10">about us</Link>
-          <Link href="/#terms" onClick={() => setIsMobileMenuOpen(false)} className="text-base font-medium text-text-main hover:text-primary py-2 border-b border-outline-variant/10">terms & conditions</Link>
-          <Link href="/#contact" onClick={() => setIsMobileMenuOpen(false)} className="text-base font-medium text-text-main hover:text-primary py-2 border-b border-outline-variant/10">contact us</Link>
+          <Link href="/#home" onClick={() => setIsMobileMenuOpen(false)} className={`text-base font-medium py-2 border-b border-outline-variant/10 ${activeSection === 'home' ? 'text-primary' : 'text-text-main hover:text-primary'}`}>home</Link>
+          <Link href="/#about" onClick={() => setIsMobileMenuOpen(false)} className={`text-base font-medium py-2 border-b border-outline-variant/10 ${activeSection === 'about' ? 'text-primary' : 'text-text-main hover:text-primary'}`}>about us</Link>
+          <Link href="/#terms" onClick={() => setIsMobileMenuOpen(false)} className={`text-base font-medium py-2 border-b border-outline-variant/10 ${activeSection === 'terms' ? 'text-primary' : 'text-text-main hover:text-primary'}`}>terms & conditions</Link>
+          <Link href="/#privacy" onClick={() => setIsMobileMenuOpen(false)} className={`text-base font-medium py-2 border-b border-outline-variant/10 ${activeSection === 'privacy' ? 'text-primary' : 'text-text-main hover:text-primary'}`}>privacy & policy</Link>
+          <Link href="/#contact" onClick={() => setIsMobileMenuOpen(false)} className={`text-base font-medium py-2 border-b border-outline-variant/10 ${activeSection === 'contact' ? 'text-primary' : 'text-text-main hover:text-primary'}`}>contact us</Link>
           
           <div className="flex items-center justify-between pt-4">
             <LanguageSwitcher />
