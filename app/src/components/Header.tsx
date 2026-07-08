@@ -106,9 +106,7 @@ export default function Header() {
             </button>
           )}
           
-          <div className="hidden sm:block">
-            <LanguageSwitcher />
-          </div>
+          <LanguageSwitcher />
 
           {/* Mobile Hamburger Button */}
           <button 
@@ -128,10 +126,8 @@ export default function Header() {
           <Link href="/#terms" onClick={() => setIsMobileMenuOpen(false)} className={`text-base font-medium py-2 border-b border-outline-variant/10 ${activeSection === 'terms' ? 'text-primary' : 'text-text-main hover:text-primary'}`}>terms & conditions</Link>
           <Link href="/#privacy" onClick={() => setIsMobileMenuOpen(false)} className={`text-base font-medium py-2 border-b border-outline-variant/10 ${activeSection === 'privacy' ? 'text-primary' : 'text-text-main hover:text-primary'}`}>privacy & policy</Link>
           <Link href="/#contact" onClick={() => setIsMobileMenuOpen(false)} className={`text-base font-medium py-2 border-b border-outline-variant/10 ${activeSection === 'contact' ? 'text-primary' : 'text-text-main hover:text-primary'}`}>contact us</Link>
-          
-          <div className="flex items-center justify-between pt-4">
-            <LanguageSwitcher />
-            {isLoggedIn && !isCustomerPage && (
+          {isLoggedIn && !isCustomerPage && (
+            <div className="pt-4 border-t border-outline-variant/10">
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl text-red-500 bg-red-50"
@@ -139,8 +135,8 @@ export default function Header() {
                 <LogOut className="w-4 h-4" />
                 Log Out
               </button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       )}
 

@@ -204,10 +204,6 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
   };
 
   const handleConfirmClick = () => {
-    if (!selectedService) {
-      showToast(t('booking.selectService'), 'error');
-      return;
-    }
     setShowModal(true);
   };
 
@@ -229,7 +225,7 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
       email: formData.email,
       phone: formData.phone,
       notes: formData.notes,
-      serviceId: selectedService,
+      serviceId: selectedService || undefined,
       slotDate: dayObj.isoDate,
       slotTime: slotTime,
       paymentMethod: 'cash',
@@ -470,9 +466,9 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
                 </div>
               </div>
 
-              {/* Book Button */}
+              {/* Book Button — Desktop only (inside card) */}
               {selectedSlot && (
-                <div className="mt-8 animate-fade-in">
+                <div className="mt-8 animate-fade-in hidden md:block">
                   <button onClick={handleConfirmClick} className="btn-gold w-full text-base py-4 shadow-md" id="proceed-booking">
                     {loc.confirmBtn}
                   </button>
@@ -484,6 +480,24 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
           </div>
         </div>
       </main>
+
+      {/* Floating Confirm Bar — Mobile only */}
+      {selectedSlot && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden animate-fade-in">
+          <div className="bg-white/95 backdrop-blur-md border-t border-outline-variant/30 px-6 py-4 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
+            <div className="flex items-center justify-between gap-4 max-w-lg mx-auto">
+              <div className="text-sm">
+                <span className="font-bold text-text-main">{daysOfWeek[selectedSlot.dayIdx]?.date}</span>
+                <span className="text-text-light mx-2">·</span>
+                <span className="font-bold text-primary">{timeSlots[selectedSlot.timeIdx]}</span>
+              </div>
+              <button onClick={handleConfirmClick} className="btn-gold text-sm px-6 py-3 shadow-lg" id="proceed-booking-mobile">
+                {loc.confirmBtn}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Booking Intent Modal */}
       {showModal && (
