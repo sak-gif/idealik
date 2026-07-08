@@ -49,6 +49,12 @@ export default function Header() {
           />
         </Link>
         <div className="flex items-center gap-6">
+          <nav className="hidden md:flex items-center gap-6 text-sm f-heading font-bold" style={{ color: '#1A1C1C' }}>
+            <Link href="/#home" className="hover:text-primary transition-colors">Home</Link>
+            <Link href="/#about" className="hover:text-primary transition-colors">About Us</Link>
+            <Link href="/#terms" className="hover:text-primary transition-colors">Terms & Conditions</Link>
+            <Link href="/#contact" className="hover:text-primary transition-colors">Contact Us</Link>
+          </nav>
           {isLoggedIn && !isCustomerPage && (
             <button
               onClick={handleLogout}
