@@ -25,10 +25,6 @@ export default function HomePage() {
           <div className="page-container relative z-10 px-6 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             {/* Left Content */}
             <div className="text-left animate-in" style={{ animationDelay: '0.1s' }}>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-8 shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-                <span className="text-xs font-bold text-primary-dark tracking-wider uppercase">Premium Scheduling</span>
-              </div>
               
               <h1
                 className="f-heading font-extrabold leading-tight tracking-tight mb-6 text-transparent bg-clip-text bg-gradient-to-r from-[#1A1C1C] to-[#4C463A]"
@@ -52,23 +48,6 @@ export default function HomePage() {
                 <Link href="/register" className="btn-outline min-w-[200px] text-base px-8 py-4 bg-white/80 backdrop-blur-sm hover:bg-neutral-50 transition-colors flex items-center justify-center gap-2" id="cta-sign-up">
                   {t('landing.signUp')}
                 </Link>
-              </div>
-
-              {/* Trust Indicators */}
-              <div className="mt-12 flex items-center gap-6">
-                <div className="flex -space-x-4">
-                  {[1,2,3].map((i) => (
-                    <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-surface-container flex items-center justify-center overflow-hidden">
-                      <svg className="w-5 h-5 text-text-light/50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                    </div>
-                  ))}
-                  <div className="w-10 h-10 rounded-full border-2 border-white bg-primary text-white flex items-center justify-center text-xs font-bold z-10">
-                    +5k
-                  </div>
-                </div>
-                <div className="text-sm font-semibold text-text-light">
-                  Trusted by independent <br/> professionals globally.
-                </div>
               </div>
             </div>
 
