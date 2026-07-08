@@ -4,14 +4,15 @@ export const dynamic = 'force-dynamic';
 import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Mail, ArrowRight, ShieldCheck, ArrowLeft, Loader2 } from 'lucide-react';
+import { Phone, ArrowRight, ShieldCheck, ArrowLeft, Loader2 } from 'lucide-react';
 import SparkleDecor from '@/components/SparkleDecor';
+import { setupRecaptcha, sendSmsOtp, verifySmsOtp, ConfirmationResult } from '@/lib/firebase';
 
 function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [step, setStep] = useState<'request' | 'verify'>('request');
   
@@ -21,6 +22,7 @@ function VerifyEmailContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
   const getPasswordStrength = (pw: string) => {
     if (!pw) return null;
@@ -38,37 +40,38 @@ function VerifyEmailContent() {
   };
 
   useEffect(() => {
-    const urlEmail = searchParams.get('email');
-    if (urlEmail) {
-      setEmail(urlEmail);
+    const urlPhone = searchParams.get('phone') || searchParams.get('email');
+    if (urlPhone) {
+      setPhoneNumber(urlPhone);
     }
   }, [searchParams]);
 
-  const handleSendOtp = async (targetEmail: string) => {
-    if (!targetEmail) {
-      setError('Please enter your email address.');
+  const handleSendOtp = async (targetPhone: string) => {
+    if (!targetPhone || !targetPhone.startsWith('+')) {
+      setError('Please enter a valid phone number with country code (e.g., +1234567890).');
       return;
     }
     setLoading(true);
     setError('');
     setSuccessMsg('');
     try {
-      const res = await fetch('/api/auth/send-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: targetEmail })
-      });
-      let data: any = {};
-      try {
-        data = await res.json();
-      } catch (e) {}
-      if (!res.ok) throw new Error(data?.message || `Server error (${res.status}). Please try again.`);
+      if (!(window as any).recaptchaVerifier) {
+        setupRecaptcha('send-otp-btn');
+      }
+
+      const verifier = (window as any).recaptchaVerifier;
+      const result = await sendSmsOtp(targetPhone, verifier);
+      setConfirmationResult(result);
       
-      setSuccessMsg('Verification code sent! Please check your email.');
+      setSuccessMsg('Verification code sent! Please check your phone.');
       setStep('verify');
     } catch (err: any) {
-      console.error('Email send error:', err);
-      setError(err.message || 'Failed to send verification code.');
+      console.error('SMS send error:', err);
+      setError(err.message || 'Failed to send verification code. Check phone number format.');
+      if ((window as any).recaptchaVerifier) {
+        (window as any).recaptchaVerifier.clear();
+        (window as any).recaptchaVerifier = null;
+      }
     } finally {
       setLoading(false);
     }
@@ -98,11 +101,20 @@ function VerifyEmailContent() {
     setLoading(true);
     setError('');
     try {
+      if (!confirmationResult) {
+        throw new Error('No SMS session found. Please try resending the code.');
+      }
+      
+      const isValid = await verifySmsOtp(confirmationResult, code);
+      if (!isValid) {
+        throw new Error('Invalid or expired SMS code.');
+      }
+
       if (action === 'forgot-password') {
-        const res = await fetch('/api/auth/reset-password', {
+        const res = await fetch('/api/auth/reset-password-by-phone', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, otp: code, newPassword })
+          body: JSON.stringify({ phone: phoneNumber, newPassword })
         });
         let data: any = {};
         try {
@@ -114,17 +126,6 @@ function VerifyEmailContent() {
         setTimeout(() => router.push('/login'), 2000);
         return;
       }
-
-      const res = await fetch('/api/auth/verify-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, otp: code })
-      });
-      let verifyData: any = {};
-      try {
-        verifyData = await res.json();
-      } catch (e) {}
-      if (!res.ok) throw new Error(verifyData?.message || `Invalid verification code (${res.status}).`);
 
       if (action === 'register') {
         setSuccessMsg('Email verified successfully! Completing registration...');
@@ -217,7 +218,7 @@ function VerifyEmailContent() {
       <div className="w-full max-w-md relative z-10 animate-fade-in">
         <button 
           onClick={() => {
-            if (step === 'verify' && !searchParams.get('email')) {
+            if (step === 'verify' && !searchParams.get('phone') && !searchParams.get('email')) {
               setStep('request');
             } else {
               router.back();
@@ -234,19 +235,19 @@ function VerifyEmailContent() {
 
           <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center mb-6 border border-primary/30 mx-auto">
             {step === 'request' ? (
-              <Mail className="w-7 h-7 text-primary-light" />
+              <Phone className="w-7 h-7 text-primary-light" />
             ) : (
               <ShieldCheck className="w-7 h-7 text-primary-light" />
             )}
           </div>
 
           <h1 className="text-3xl f-heading font-black text-text-main mb-2 text-center">
-            {step === 'request' ? 'Verify Email' : 'Enter Code'}
+            {step === 'request' ? 'Verify Phone' : 'Enter Code'}
           </h1>
           <p className="text-sm text-text-muted mb-8 leading-relaxed text-center">
             {step === 'request' 
-              ? 'Enter your email address to receive a secure 6-digit verification code.'
-              : `We sent a 6-digit verification code to ${email}. Enter it below.`}
+              ? 'Enter your phone number to receive a secure 6-digit verification code.'
+              : `We sent a 6-digit verification code to ${phoneNumber}. Enter it below.`}
           </p>
 
           {error && (
@@ -265,22 +266,23 @@ function VerifyEmailContent() {
             <div className="space-y-6">
               <div>
                 <label className="block text-xs font-bold text-text-main uppercase tracking-wider mb-2">
-                  Email Address
+                  Phone Number
                 </label>
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  readOnly={!!searchParams.get('email')}
-                  className={`w-full bg-bg-main border border-outline-variant/30 rounded-xl px-4 py-3.5 text-text-main text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-text-muted/50 ${!!searchParams.get('email') ? 'opacity-70 cursor-not-allowed' : ''}`}
-                  placeholder="hello@example.com"
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  readOnly={!!(searchParams.get('phone') || searchParams.get('email'))}
+                  className={`w-full bg-bg-main border border-outline-variant/30 rounded-xl px-4 py-3.5 text-text-main text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-text-muted/50 ${!!(searchParams.get('phone') || searchParams.get('email')) ? 'opacity-70 cursor-not-allowed' : ''}`}
+                  placeholder="+1234567890"
                   required
                 />
               </div>
 
               <button
-                onClick={() => handleSendOtp(email)}
-                disabled={loading || !email}
+                id="send-otp-btn"
+                onClick={() => handleSendOtp(phoneNumber)}
+                disabled={loading || !phoneNumber}
                 className="w-full btn-gold py-4 rounded-xl font-bold flex items-center justify-center gap-2 group"
               >
                 {loading ? (
@@ -386,7 +388,7 @@ function VerifyEmailContent() {
 
                 <button
                   type="button"
-                  onClick={() => handleSendOtp(email)}
+                  onClick={() => handleSendOtp(phoneNumber)}
                   disabled={loading}
                   className="w-full py-3 text-sm font-semibold text-text-light hover:text-primary transition-colors bg-transparent border-none"
                 >

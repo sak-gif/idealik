@@ -150,7 +150,7 @@ export default function RegisterPage() {
       let registerData: any = {};
       try {
         registerData = await registerRes.json();
-      } catch {
+      } catch (e) {
         // Response wasn't JSON
       }
       
@@ -163,7 +163,7 @@ export default function RegisterPage() {
           window.location.href = '/dashboard';
         }, 1500);
       } else {
-        throw new Error(registerData.message || 'Registration failed.');
+        throw new Error(registerData?.message || registerData?.error || `Registration failed (${registerRes.status}).`);
       }
 
     } catch (err: any) {
