@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -9,6 +9,29 @@ import { useLanguage } from '@/context/LanguageContext';
 
 export default function HomePage() {
   const { t } = useLanguage();
+  const [contactForm, setContactForm] = useState({ fullName: '', email: '', message: '' });
+  const [contactStatus, setContactStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setContactStatus('loading');
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(contactForm)
+      });
+      if (res.ok) {
+        setContactStatus('success');
+        setContactForm({ fullName: '', email: '', message: '' });
+        setTimeout(() => setContactStatus('idle'), 5000);
+      } else {
+        setContactStatus('error');
+      }
+    } catch (err) {
+      setContactStatus('error');
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#F9F9F9' }}>
@@ -287,22 +310,38 @@ export default function HomePage() {
                 </div>
 
                 {/* Contact Form */}
-                <div className="card p-8 shadow-xl border border-outline-variant/20">
-                  <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); alert('Thank you for reaching out! We will get back to you soon.'); }}>
+                <div className="card p-8 shadow-xl border border-outline-variant/20 relative overflow-hidden">
+                  {contactStatus === 'success' && (
+                    <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-10 flex flex-col items-center justify-center p-6 text-center animate-in fade-in zoom-in duration-300">
+                      <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4">
+                        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                      </div>
+                      <h3 className="f-heading font-extrabold text-2xl text-text-main mb-2">Message Sent!</h3>
+                      <p className="text-text-light text-sm">Thank you for reaching out. We will get back to you shortly.</p>
+                      <button onClick={() => setContactStatus('idle')} className="mt-6 px-6 py-2 bg-neutral-100 hover:bg-neutral-200 text-text-main font-bold rounded-lg transition-colors">Close</button>
+                    </div>
+                  )}
+                  
+                  <form className="space-y-5" onSubmit={handleContactSubmit}>
+                    {contactStatus === 'error' && (
+                      <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm border border-red-200 text-center">
+                        Something went wrong. Please try again.
+                      </div>
+                    )}
                     <div>
                       <label className="block text-xs f-heading font-semibold mb-2" style={{ color: '#1A1C1C' }}>Full Name</label>
-                      <input type="text" className="input-field input-no-icon w-full px-4" placeholder="Jane Doe" required />
+                      <input type="text" className="input-field input-no-icon w-full px-4" placeholder="Jane Doe" required value={contactForm.fullName} onChange={e => setContactForm({...contactForm, fullName: e.target.value})} />
                     </div>
                     <div>
                       <label className="block text-xs f-heading font-semibold mb-2" style={{ color: '#1A1C1C' }}>Email Address</label>
-                      <input type="email" className="input-field input-no-icon w-full px-4" placeholder="jane@example.com" required />
+                      <input type="email" className="input-field input-no-icon w-full px-4" placeholder="jane@example.com" required value={contactForm.email} onChange={e => setContactForm({...contactForm, email: e.target.value})} />
                     </div>
                     <div>
                       <label className="block text-xs f-heading font-semibold mb-2" style={{ color: '#1A1C1C' }}>Message</label>
-                      <textarea className="input-field input-no-icon w-full px-4 py-3 resize-none min-h-[120px]" placeholder="How can we help you?" required></textarea>
+                      <textarea className="input-field input-no-icon w-full px-4 py-3 resize-none min-h-[120px]" placeholder="How can we help you?" required value={contactForm.message} onChange={e => setContactForm({...contactForm, message: e.target.value})}></textarea>
                     </div>
-                    <button type="submit" className="btn-gold w-full py-4 mt-2">
-                      Send Message
+                    <button type="submit" disabled={contactStatus === 'loading'} className="btn-gold w-full py-4 mt-2 disabled:opacity-70">
+                      {contactStatus === 'loading' ? 'Sending...' : 'Send Message'}
                     </button>
                   </form>
                 </div>

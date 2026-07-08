@@ -4,6 +4,8 @@ import com.idealik.backend.model.Practitioner;
 import com.idealik.backend.model.Booking;
 import com.idealik.backend.repository.PractitionerRepository;
 import com.idealik.backend.repository.BookingRepository;
+import com.idealik.backend.repository.ContactMessageRepository;
+import com.idealik.backend.model.ContactMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,9 @@ public class AdminController {
 
     @Autowired
     private BookingRepository bookingRepository;
+
+    @Autowired
+    private ContactMessageRepository contactMessageRepository;
 
     @Autowired
     private EntityManager entityManager;
@@ -95,4 +100,16 @@ public class AdminController {
         }
     }
 
+    @GetMapping("/messages")
+    public ResponseEntity<?> getMessages(@RequestHeader(value = "Authorization", required = false) String token) {
+        if (!isAuthorized(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Unauthorized"));
+        }
+        
+        List<ContactMessage> messages = contactMessageRepository.findAll();
+        // Sort by newest first
+        messages.sort((m1, m2) -> m2.getCreatedAt().compareTo(m1.getCreatedAt()));
+        
+        return ResponseEntity.ok(messages);
+    }
 }

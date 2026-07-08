@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SparkleDecor from '@/components/SparkleDecor';
-import { User, Lock, Trash2, Users, EyeOff, Eye, CheckCircle } from 'lucide-react';
+import { User, Lock, Trash2, Users, EyeOff, Eye, CheckCircle, MessageSquare, Mail } from 'lucide-react';
 
 export default function AdminPage() {
   const [token, setToken] = useState<string | null>(null);
@@ -32,7 +32,9 @@ export default function AdminPage() {
 
   const closeModal = () => setModal(prev => ({ ...prev, isOpen: false }));
 
+  const [activeTab, setActiveTab] = useState<'users' | 'messages'>('users');
   const [practitioners, setPractitioners] = useState<any[]>([]);
+  const [messages, setMessages] = useState<any[]>([]);
 
   useEffect(() => {
     const storedToken = localStorage.getItem('admin_idealik_token');
@@ -57,8 +59,12 @@ export default function AdminPage() {
         handleLogout();
         return;
       }
-
       if (practitionersRes.ok) setPractitioners(await practitionersRes.json());
+
+      const messagesRes = await fetch('/api/admin/messages', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (messagesRes.ok) setMessages(await messagesRes.json());
     } catch (err) {
       console.error(err);
     }
@@ -201,48 +207,95 @@ export default function AdminPage() {
           </div>
 
           <div className="card p-6 min-h-[500px]">
-            <div className="space-y-4 animate-fade-in">
-              <h2 className="f-heading font-bold text-xl mb-4 text-text-main flex items-center gap-2">
-                <Users className="w-5 h-5 text-primary" />
-                Registered Practitioners ({practitioners.length})
-              </h2>
-              {practitioners.length === 0 ? (
-                <p className="text-sm text-text-light text-center py-10">No practitioners found.</p>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="border-b border-outline-variant/20">
-                        <th className="py-3 px-4 text-xs font-extrabold text-text-light uppercase">ID</th>
-                        <th className="py-3 px-4 text-xs font-extrabold text-text-light uppercase">Business Name</th>
-                        <th className="py-3 px-4 text-xs font-extrabold text-text-light uppercase">Email</th>
-                        <th className="py-3 px-4 text-xs font-extrabold text-text-light uppercase">Phone</th>
-                        <th className="py-3 px-4 text-xs font-extrabold text-text-light uppercase text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {practitioners.map((p) => (
-                        <tr key={p.id} className="border-b border-outline-variant/10 hover:bg-neutral-50 transition-colors">
-                          <td className="py-3 px-4 text-sm font-bold text-text-main">#{p.id}</td>
-                          <td className="py-3 px-4 text-sm text-text-main">{p.businessName || 'N/A'}</td>
-                          <td className="py-3 px-4 text-sm text-text-light">{p.email}</td>
-                          <td className="py-3 px-4 text-sm text-text-light">{p.phoneNumber || 'N/A'}</td>
-                          <td className="py-3 px-4 text-sm text-right">
-                            <button
-                              onClick={() => confirmDeletePractitioner(p.id)}
-                              className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors inline-flex items-center justify-center cursor-pointer"
-                              title="Delete Practitioner"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+            {/* Tabs */}
+            <div className="flex border-b border-outline-variant/30 mb-6">
+              <button
+                className={`py-3 px-6 f-heading font-bold text-sm border-b-2 transition-colors ${activeTab === 'users' ? 'border-primary text-primary' : 'border-transparent text-text-light hover:text-text-main'}`}
+                onClick={() => setActiveTab('users')}
+              >
+                <div className="flex items-center gap-2"><Users className="w-4 h-4" /> Practitioners</div>
+              </button>
+              <button
+                className={`py-3 px-6 f-heading font-bold text-sm border-b-2 transition-colors ${activeTab === 'messages' ? 'border-primary text-primary' : 'border-transparent text-text-light hover:text-text-main'}`}
+                onClick={() => setActiveTab('messages')}
+              >
+                <div className="flex items-center gap-2"><MessageSquare className="w-4 h-4" /> Contact Messages</div>
+              </button>
             </div>
+
+            {activeTab === 'users' ? (
+              <div className="space-y-4 animate-fade-in">
+                <h2 className="f-heading font-bold text-xl mb-4 text-text-main flex items-center gap-2">
+                  <Users className="w-5 h-5 text-primary" />
+                  Registered Practitioners ({practitioners.length})
+                </h2>
+                {practitioners.length === 0 ? (
+                  <p className="text-sm text-text-light text-center py-10">No practitioners found.</p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-outline-variant/20">
+                          <th className="py-3 px-4 text-xs font-extrabold text-text-light uppercase">ID</th>
+                          <th className="py-3 px-4 text-xs font-extrabold text-text-light uppercase">Business Name</th>
+                          <th className="py-3 px-4 text-xs font-extrabold text-text-light uppercase">Email</th>
+                          <th className="py-3 px-4 text-xs font-extrabold text-text-light uppercase">Phone</th>
+                          <th className="py-3 px-4 text-xs font-extrabold text-text-light uppercase text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {practitioners.map((p) => (
+                          <tr key={p.id} className="border-b border-outline-variant/10 hover:bg-neutral-50 transition-colors">
+                            <td className="py-3 px-4 text-sm font-bold text-text-main">#{p.id}</td>
+                            <td className="py-3 px-4 text-sm text-text-main">{p.businessName || 'N/A'}</td>
+                            <td className="py-3 px-4 text-sm text-text-light">{p.email}</td>
+                            <td className="py-3 px-4 text-sm text-text-light">{p.phoneNumber || 'N/A'}</td>
+                            <td className="py-3 px-4 text-sm text-right">
+                              <button
+                                onClick={() => confirmDeletePractitioner(p.id)}
+                                className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors inline-flex items-center justify-center cursor-pointer"
+                                title="Delete Practitioner"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-4 animate-fade-in">
+                <h2 className="f-heading font-bold text-xl mb-4 text-text-main flex items-center gap-2">
+                  <MessageSquare className="w-5 h-5 text-primary" />
+                  Contact Messages ({messages.length})
+                </h2>
+                {messages.length === 0 ? (
+                  <p className="text-sm text-text-light text-center py-10">No messages found.</p>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {messages.map((msg) => (
+                      <div key={msg.id} className="border border-outline-variant/30 rounded-xl p-5 bg-white shadow-sm">
+                        <div className="flex justify-between items-start mb-3">
+                          <div>
+                            <h3 className="font-bold text-text-main">{msg.fullName}</h3>
+                            <a href={`mailto:${msg.email}`} className="text-xs text-primary flex items-center gap-1 mt-1 hover:underline"><Mail className="w-3 h-3"/> {msg.email}</a>
+                          </div>
+                          <span className="text-[10px] text-text-light font-medium px-2 py-1 bg-surface-container rounded-md">
+                            {new Date(msg.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p className="text-sm text-text-light whitespace-pre-wrap bg-neutral-50 p-3 rounded-lg border border-neutral-100 mt-2">
+                          {msg.message}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
         </div>
