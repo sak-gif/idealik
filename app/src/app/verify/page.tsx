@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SparkleDecor from '@/components/SparkleDecor';
+import GlobalLoader from '@/components/GlobalLoader';
 import { useLanguage } from '@/context/LanguageContext';
 import { ShieldCheck, ArrowLeft, RotateCcw } from 'lucide-react';
 
@@ -333,7 +334,7 @@ export default function VerifyPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex flex-col justify-center items-center" style={{ background: '#F9F9F9' }}>
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <GlobalLoader />
       </div>
     }>
       <VerifyPageContent />

@@ -7,6 +7,7 @@ import { notFound, useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SparkleDecor from '@/components/SparkleDecor';
+import GlobalLoader from '@/components/GlobalLoader';
 import { useLanguage } from '@/context/LanguageContext';
 import {
   ChevronLeft,
@@ -265,7 +266,7 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
       <div className="min-h-screen flex flex-col" style={{ background: '#F9F9F9' }}>
         <Header />
         <main className="flex-1 flex justify-center items-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <GlobalLoader />
         </main>
         <Footer />
       </div>

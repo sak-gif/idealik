@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Phone, ArrowRight, ShieldCheck, ArrowLeft, Loader2 } from 'lucide-react';
 import SparkleDecor from '@/components/SparkleDecor';
+import GlobalLoader from '@/components/GlobalLoader';
 import { setupRecaptcha, sendSmsOtp, verifySmsOtp, ConfirmationResult } from '@/lib/firebase';
 
 function VerifyEmailContent() {
@@ -407,7 +408,7 @@ export default function VerifyEmailPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-bg-main flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <GlobalLoader />
       </div>
     }>
       <VerifyEmailContent />

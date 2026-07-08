@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useLanguage } from '@/context/LanguageContext';
 import { Settings, Trash2, Plus, QrCode, X, Eye, CheckCircle, AlertTriangle, User } from 'lucide-react';
 import QRCode from 'react-qr-code';
+import GlobalLoader from '@/components/GlobalLoader';
 
 export default function ServicesTab() {
   const { t } = useLanguage();
@@ -284,11 +285,7 @@ export default function ServicesTab() {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center py-20">
-        <div className="w-12 h-12 bg-primary rounded-full"></div>
-      </div>
-    );
+    return <GlobalLoader />;
   }
 
   return (
