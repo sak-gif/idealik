@@ -15,28 +15,123 @@ export default function HomePage() {
       <Header />
       <main className="flex-1 relative bg-bg-main overflow-x-hidden">
         {/* --- HOME SECTION --- */}
-        <section id="home" className="relative min-h-[90vh] flex items-center justify-center pt-20 pb-32">
+        <section id="home" className="relative min-h-[95vh] flex items-center justify-center pt-24 pb-32 overflow-hidden bg-gradient-to-b from-white to-[#F9F9F9]">
+          {/* Subtle Background Glows */}
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl -z-0 animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#1A1C1C]/5 rounded-full blur-3xl -z-0"></div>
+          
           <SparkleDecor />
-          <div className="text-center px-6 relative z-10 animate-in max-w-4xl mx-auto">
-            <h1
-              className="f-heading font-extrabold leading-tight tracking-tight mb-6"
-              style={{ fontSize: 'clamp(32px, 5vw, 64px)', color: '#1A1C1C' }}
-            >
-              {t('landing.title')}
-            </h1>
-            <p
-              className="f-heading mb-14 mx-auto max-w-2xl"
-              style={{ fontSize: 'clamp(18px, 2.5vw, 24px)', color: '#4C463A' }}
-            >
-              {t('landing.subtitle')}
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-5">
-              <Link href="/login" className="btn-gold min-w-[220px] text-lg px-12 py-4 shadow-xl shadow-primary/20 hover:scale-105 transition-transform" id="cta-sign-in">
-                {t('landing.signIn')}
-              </Link>
-              <Link href="/register" className="btn-outline min-w-[220px] text-lg px-12 py-4 bg-white hover:bg-neutral-50 transition-colors" id="cta-sign-up">
-                {t('landing.signUp')}
-              </Link>
+          
+          <div className="page-container relative z-10 px-6 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            {/* Left Content */}
+            <div className="text-left animate-in" style={{ animationDelay: '0.1s' }}>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-8 shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                <span className="text-xs font-bold text-primary-dark tracking-wider uppercase">Premium Scheduling</span>
+              </div>
+              
+              <h1
+                className="f-heading font-extrabold leading-tight tracking-tight mb-6 text-transparent bg-clip-text bg-gradient-to-r from-[#1A1C1C] to-[#4C463A]"
+                style={{ fontSize: 'clamp(40px, 5vw, 64px)' }}
+              >
+                {t('landing.title')}
+              </h1>
+              
+              <p
+                className="f-heading mb-10 max-w-xl"
+                style={{ fontSize: 'clamp(18px, 2vw, 22px)', color: '#7E7669', lineHeight: '1.6' }}
+              >
+                {t('landing.subtitle')}
+              </p>
+              
+              <div className="flex flex-col sm:flex-row items-start gap-4">
+                <Link href="/login" className="btn-gold min-w-[200px] text-base px-8 py-4 shadow-xl shadow-primary/20 hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 group" id="cta-sign-in">
+                  {t('landing.signIn')}
+                  <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                </Link>
+                <Link href="/register" className="btn-outline min-w-[200px] text-base px-8 py-4 bg-white/80 backdrop-blur-sm hover:bg-neutral-50 transition-colors flex items-center justify-center gap-2" id="cta-sign-up">
+                  {t('landing.signUp')}
+                </Link>
+              </div>
+
+              {/* Trust Indicators */}
+              <div className="mt-12 flex items-center gap-6">
+                <div className="flex -space-x-4">
+                  {[1,2,3].map((i) => (
+                    <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-surface-container flex items-center justify-center overflow-hidden">
+                      <svg className="w-5 h-5 text-text-light/50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                    </div>
+                  ))}
+                  <div className="w-10 h-10 rounded-full border-2 border-white bg-primary text-white flex items-center justify-center text-xs font-bold z-10">
+                    +5k
+                  </div>
+                </div>
+                <div className="text-sm font-semibold text-text-light">
+                  Trusted by independent <br/> professionals globally.
+                </div>
+              </div>
+            </div>
+
+            {/* Right Abstract Visuals */}
+            <div className="relative hidden lg:flex items-center justify-center h-full animate-in" style={{ animationDelay: '0.3s' }}>
+              <div className="relative w-full max-w-[500px] aspect-square">
+                {/* Main Dashboard Card Mockup */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[80%] bg-white rounded-3xl shadow-2xl border border-outline-variant/30 p-6 flex flex-col gap-4 z-20 hover:-translate-y-6 transition-transform duration-500">
+                  {/* Mock Header */}
+                  <div className="flex justify-between items-center border-b border-outline-variant/20 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                        <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                      </div>
+                      <div>
+                        <div className="w-24 h-3 bg-neutral-200 rounded-full mb-1"></div>
+                        <div className="w-16 h-2 bg-neutral-100 rounded-full"></div>
+                      </div>
+                    </div>
+                    <div className="w-8 h-8 rounded-full bg-neutral-100"></div>
+                  </div>
+                  {/* Mock Content rows */}
+                  {[1, 2, 3].map((row) => (
+                    <div key={row} className="flex items-center justify-between p-3 rounded-xl bg-surface-container/30 border border-outline-variant/10">
+                      <div className="flex items-center gap-3">
+                        <div className="w-1.5 h-8 bg-primary rounded-full"></div>
+                        <div>
+                          <div className="w-20 h-2.5 bg-neutral-300 rounded-full mb-1.5"></div>
+                          <div className="w-12 h-2 bg-neutral-200 rounded-full"></div>
+                        </div>
+                      </div>
+                      <div className="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-[10px] font-bold">Confirmed</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Floating Element 1 - Notification */}
+                <div className="absolute -right-8 top-20 bg-white p-4 rounded-2xl shadow-xl border border-outline-variant/20 z-30 animate-float" style={{ animationDelay: '0.5s' }}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center">
+                      <svg className="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-[#1A1C1C]">New Booking</div>
+                      <div className="text-[10px] text-text-light">Just now</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Floating Element 2 - Service */}
+                <div className="absolute -left-12 bottom-24 bg-white p-3 rounded-2xl shadow-xl border border-outline-variant/20 z-30 animate-float" style={{ animationDelay: '1.2s' }}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-neutral-100 border border-neutral-200"></div>
+                    <div>
+                      <div className="text-xs font-bold text-[#1A1C1C] mb-1">Consultation</div>
+                      <div className="text-xs font-extrabold text-primary">$120.00</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Decorative Elements */}
+                <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-[radial-gradient(#C2A86F_2px,transparent_2px)] [background-size:16px_16px] opacity-20 z-10"></div>
+              </div>
             </div>
           </div>
         </section>
