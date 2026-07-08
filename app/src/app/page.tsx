@@ -138,22 +138,45 @@ export default function HomePage() {
           <div className="page-container mx-auto px-6">
             <div className="max-w-4xl mx-auto bg-white p-10 md:p-14 rounded-3xl shadow-sm border border-outline-variant/30">
               <h2 className="f-heading font-extrabold text-3xl mb-8" style={{ color: '#1A1C1C' }}>Terms & Conditions</h2>
-              <div className="space-y-6 text-sm" style={{ color: '#4C463A' }}>
+              <div className="space-y-6 text-sm leading-relaxed" style={{ color: '#4C463A' }}>
+                <p><strong>Last Updated: {new Date().toLocaleDateString()}</strong></p>
+                <p>Welcome to iDAELİK. By accessing or using our platform, you agree to be bound by these Terms & Conditions. Please read them carefully.</p>
+                
                 <div>
-                  <h3 className="font-bold text-lg mb-2" style={{ color: '#1A1C1C' }}>1. Introduction</h3>
-                  <p className="leading-relaxed">By accessing and using the iDAELİK platform, you accept and agree to be bound by the terms and provisions of this agreement. Any participation in this service will constitute acceptance of this agreement.</p>
+                  <h3 className="font-bold text-lg mb-2" style={{ color: '#1A1C1C' }}>1. General Provisions</h3>
+                  <p>1.1. iDAELİK operates as a software-as-a-service (SaaS) platform providing scheduling and booking solutions for independent professionals and their clients.</p>
+                  <p>1.2. By registering an account or making a booking, you confirm that you are at least 18 years of age and capable of entering into a legally binding agreement.</p>
                 </div>
+                
                 <div>
-                  <h3 className="font-bold text-lg mb-2" style={{ color: '#1A1C1C' }}>2. Booking & Cancellations</h3>
-                  <p className="leading-relaxed">Practitioners reserve the right to accept or decline any booking requests. Users must provide valid contact information (email and phone number) to successfully place a reservation. Cancellations must be communicated promptly.</p>
+                  <h3 className="font-bold text-lg mb-2" style={{ color: '#1A1C1C' }}>2. Practitioner Accounts & Responsibilities</h3>
+                  <p>2.1. <strong>Accuracy of Information:</strong> Professionals utilizing our platform to offer services must ensure that all service details, availability, and pricing are accurate and up-to-date.</p>
+                  <p>2.2. <strong>Service Fulfillment:</strong> iDAELİK provides the scheduling software but is not a party to the service agreement between the practitioner and the client. The practitioner holds sole responsibility for the quality, safety, and delivery of their services.</p>
+                  <p>2.3. <strong>Account Security:</strong> You are responsible for safeguarding your login credentials. Any activity occurring under your account is your responsibility.</p>
                 </div>
+                
                 <div>
-                  <h3 className="font-bold text-lg mb-2" style={{ color: '#1A1C1C' }}>3. Privacy Policy</h3>
-                  <p className="leading-relaxed">We value your privacy. Phone numbers and email addresses collected during the registration and booking processes are used strictly for authentication, notifications, and service fulfillment.</p>
+                  <h3 className="font-bold text-lg mb-2" style={{ color: '#1A1C1C' }}>3. Booking & Cancellations (Clients)</h3>
+                  <p>3.1. <strong>Making Reservations:</strong> Clients must provide a valid email address and phone number for SMS authentication and notifications to finalize a booking.</p>
+                  <p>3.2. <strong>Practitioner Discretion:</strong> Practitioners reserve the right to accept, decline, or reschedule any pending booking request based on their professional discretion and availability.</p>
+                  <p>3.3. <strong>Cancellations:</strong> Clients must communicate cancellations directly with the respective practitioner within the timeframe established by that practitioner's individual policies.</p>
                 </div>
+
                 <div>
-                  <h3 className="font-bold text-lg mb-2" style={{ color: '#1A1C1C' }}>4. Modifications</h3>
-                  <p className="leading-relaxed">We reserve the right to modify these terms at any time. Your continued use of the platform following any changes indicates your acceptance of the new Terms and Conditions.</p>
+                  <h3 className="font-bold text-lg mb-2" style={{ color: '#1A1C1C' }}>4. Acceptable Use Policy</h3>
+                  <p>4.1. You agree not to misuse the iDAELİK platform. This includes, but is not limited to: submitting false information, attempting to breach security measures (e.g., OTP bypassing), engaging in fraudulent bookings, or using the platform to transmit malicious code.</p>
+                  <p>4.2. We reserve the right to suspend or terminate accounts that violate our acceptable use policy without prior notice.</p>
+                </div>
+
+                <div>
+                  <h3 className="font-bold text-lg mb-2" style={{ color: '#1A1C1C' }}>5. Limitation of Liability</h3>
+                  <p>5.1. iDAELİK is provided on an "as is" and "as available" basis. We do not warrant that the service will be uninterrupted, error-free, or completely secure.</p>
+                  <p>5.2. In no event shall iDAELİK, its directors, employees, or partners be liable for any indirect, incidental, consequential, or punitive damages arising from your use of the platform, including lost profits or loss of data.</p>
+                </div>
+                
+                <div>
+                  <h3 className="font-bold text-lg mb-2" style={{ color: '#1A1C1C' }}>6. Modifications to Terms</h3>
+                  <p>We reserve the right to modify these terms at any time. Significant changes will be communicated via email or platform notification. Continued use of the platform following modifications constitutes your acceptance of the revised Terms and Conditions.</p>
                 </div>
               </div>
             </div>
@@ -163,27 +186,56 @@ export default function HomePage() {
         {/* --- PRIVACY AND POLICY SECTION --- */}
         <section id="privacy" className="py-24 bg-white">
           <div className="page-container mx-auto px-6">
-            <div className="max-w-4xl mx-auto p-10 md:p-14">
-              <h2 className="f-heading font-extrabold text-3xl mb-8" style={{ color: '#1A1C1C' }}>Privacy & Policy</h2>
+            <div className="max-w-4xl mx-auto p-10 md:p-14 border border-outline-variant/20 rounded-3xl bg-surface-container/5 shadow-sm">
+              <h2 className="f-heading font-extrabold text-3xl mb-8" style={{ color: '#1A1C1C' }}>Privacy Policy</h2>
               <div className="space-y-6 text-sm leading-relaxed" style={{ color: '#4C463A' }}>
+                <p><strong>Effective Date: {new Date().toLocaleDateString()}</strong></p>
                 <p>
-                  At iDAELİK, protecting your privacy is our priority. This Privacy Policy explains how we collect, use, and share your personal information when you use our platform.
+                  At iDAELİK, safeguarding your privacy and protecting your personal data is our highest priority. This comprehensive Privacy Policy outlines our practices regarding the collection, use, processing, and disclosure of your information when you access or use our platform.
                 </p>
+                
                 <div>
-                  <h3 className="font-bold text-lg mb-2" style={{ color: '#1A1C1C' }}>Data Collection</h3>
-                  <p>When you register for an account or book an appointment, we collect information such as your name, email address, phone number, and any notes you provide. We also securely process authentication data via Firebase Phone Authentication.</p>
+                  <h3 className="font-bold text-lg mb-2" style={{ color: '#1A1C1C' }}>1. Information We Collect</h3>
+                  <p>1.1. <strong>Account Information:</strong> When a practitioner registers on iDAELİK, we collect their business name, full name, email address, phone number, and professional details (services, pricing, schedules).</p>
+                  <p>1.2. <strong>Client Booking Data:</strong> When a client creates a booking, we collect their full name, email address, phone number, and any optional notes. This is necessary to confirm the appointment.</p>
+                  <p>1.3. <strong>Authentication Data:</strong> We utilize Firebase Phone Authentication. Consequently, phone numbers and verification codes (OTPs) are securely processed to verify user identity and prevent fraud.</p>
                 </div>
+
                 <div>
-                  <h3 className="font-bold text-lg mb-2" style={{ color: '#1A1C1C' }}>Use of Information</h3>
-                  <p>Your data is exclusively used to facilitate bookings, send necessary SMS or email notifications (such as confirmations and OTP codes), and allow practitioners to manage their schedules. We do not sell your personal data to third parties.</p>
+                  <h3 className="font-bold text-lg mb-2" style={{ color: '#1A1C1C' }}>2. How We Use Your Information</h3>
+                  <p>We use the collected information strictly for the following purposes:</p>
+                  <ul className="list-disc pl-5 mt-2 space-y-1">
+                    <li>To facilitate and manage scheduling and bookings between clients and practitioners.</li>
+                    <li>To deliver critical transactional communications, such as booking confirmations, cancellations, and OTP authentication SMS messages.</li>
+                    <li>To provide customer support and respond to inquiries.</li>
+                    <li>To maintain the security and integrity of our platform and prevent unauthorized access.</li>
+                  </ul>
                 </div>
+
                 <div>
-                  <h3 className="font-bold text-lg mb-2" style={{ color: '#1A1C1C' }}>Security</h3>
-                  <p>We implement industry-standard security measures, including HTTPS encryption and secure tokens, to protect against unauthorized access, alteration, or destruction of your personal data.</p>
+                  <h3 className="font-bold text-lg mb-2" style={{ color: '#1A1C1C' }}>3. Information Sharing & Disclosure</h3>
+                  <p>3.1. <strong>Between Users:</strong> Client contact information and booking details are shared exclusively with the specific practitioner the client has booked with, to enable service delivery.</p>
+                  <p>3.2. <strong>Third-Party Service Providers:</strong> We employ trusted third-party providers for hosting (Render, Aiven MySQL) and authentication/SMS services (Firebase, Twilio). These providers are bound by strict data processing agreements and are only permitted to use your data as necessary to provide these services to iDAELİK.</p>
+                  <p>3.3. <strong>Legal Requirements:</strong> We may disclose your information if required to do so by law, court order, or governmental request.</p>
+                  <p className="mt-2 font-bold text-[#1A1C1C]">iDAELİK strictly does not sell, rent, or trade your personal data to marketing agencies or any external third parties.</p>
                 </div>
+
                 <div>
-                  <h3 className="font-bold text-lg mb-2" style={{ color: '#1A1C1C' }}>Your Rights</h3>
-                  <p>You have the right to access, update, or request the deletion of your personal data at any time by contacting our support team or using the account management tools provided in your dashboard.</p>
+                  <h3 className="font-bold text-lg mb-2" style={{ color: '#1A1C1C' }}>4. Data Security & Retention</h3>
+                  <p>4.1. <strong>Security Measures:</strong> We implement rigorous technical and organizational measures to protect your data. This includes secure HTTPS encryption, password hashing, and restricted database access.</p>
+                  <p>4.2. <strong>Retention:</strong> We retain your personal data only for as long as your account is active or as needed to provide you services, comply with our legal obligations, resolve disputes, and enforce our agreements.</p>
+                </div>
+
+                <div>
+                  <h3 className="font-bold text-lg mb-2" style={{ color: '#1A1C1C' }}>5. Your Data Rights</h3>
+                  <p>Depending on your location, you have the right to:</p>
+                  <ul className="list-disc pl-5 mt-2 space-y-1">
+                    <li>Access the personal data we hold about you.</li>
+                    <li>Request corrections to inaccurate or incomplete data.</li>
+                    <li>Request the deletion of your account and associated data ("Right to be Forgotten").</li>
+                    <li>Opt-out of non-essential communications.</li>
+                  </ul>
+                  <p className="mt-2">To exercise these rights, practitioners may use their dashboard settings, and clients may contact us at privacy@idealik.com.</p>
                 </div>
               </div>
             </div>
