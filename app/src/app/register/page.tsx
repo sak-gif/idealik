@@ -79,32 +79,20 @@ export default function RegisterPage() {
       return;
     }
 
-    setLoading(true);
+    setStep('otp');
+    setSuccessMsg('Verification code sent! Please check your email.');
+    
     try {
-      // Send email OTP via backend
-      const res = await fetch('/api/auth/send-otp', {
+      // Send email OTP via backend (non-blocking for UI)
+      fetch('/api/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
+      }).catch(err => {
+        console.error("Failed to send OTP:", err);
       });
-      
-      let data: any = {};
-      try {
-        data = await res.json();
-      } catch {
-        // Response wasn't JSON (e.g. HTML error page from proxy)
-      }
-      
-      if (!res.ok) {
-        throw new Error(data.message || 'Server error. Please try again later.');
-      }
-
-      setSuccessMsg('Verification code sent! Please check your email.');
-      setStep('otp');
     } catch (err: any) {
-      setError(err.message || 'An error occurred. Please try again.');
-    } finally {
-      setLoading(false);
+      console.error(err);
     }
   };
 

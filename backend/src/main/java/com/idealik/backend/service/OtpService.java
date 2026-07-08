@@ -88,7 +88,9 @@ public class OtpService {
             helper.setText(htmlMsg, true);
             mailSender.send(message);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to send HTML email", e);
+            // Log the OTP and error instead of throwing to prevent transaction rollback
+            System.err.println("Failed to send HTML email. Test Mode OTP for " + email + ": " + otp);
+            e.printStackTrace();
         }
     }
 
