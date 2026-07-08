@@ -115,14 +115,28 @@ public class BookingService {
         }
 
         booking.setBookingStatus("confirmed");
-        return bookingRepository.save(booking);
+        Booking savedBooking = bookingRepository.save(booking);
+
+        // Send SMS notification to the customer
+        if (savedBooking.getClientPhone() != null && !savedBooking.getClientPhone().trim().isEmpty()) {
+            String smsMessage = String.format(
+                "Hello %s! Good news, your reservation with %s on %s at %s has been ACCEPTED. See you then!",
+                savedBooking.getClientName(),
+                practitioner.getBusinessName() != null ? practitioner.getBusinessName() : practitioner.getName(),
+                savedBooking.getSlotDate(),
+                savedBooking.getSlotTime()
+            );
+            smsNotificationService.sendSms(savedBooking.getClientPhone(), smsMessage);
+        }
+
+        return savedBooking;
     }
 
     /**
      * Provider rejects a pending booking → declined (frees the slot).
      */
     @Transactional
-    public Booking declineBooking(Practitioner practitioner, Long bookingId) {
+    public Booking declineBooking(Practitioner practitioner, Long bookingId, String reason) {
         Booking booking = bookingRepository.findById(bookingId)
             .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
 
@@ -131,7 +145,23 @@ public class BookingService {
         }
 
         booking.setBookingStatus("declined");
-        return bookingRepository.save(booking);
+        Booking savedBooking = bookingRepository.save(booking);
+
+        // Send SMS notification
+        if (savedBooking.getClientPhone() != null && !savedBooking.getClientPhone().trim().isEmpty()) {
+            String reasonText = (reason != null && !reason.trim().isEmpty()) ? " Reason: " + reason.trim() : "";
+            String smsMessage = String.format(
+                "Hello %s. Unfortunately, your reservation with %s on %s at %s has been DECLINED.%s",
+                savedBooking.getClientName(),
+                practitioner.getBusinessName() != null ? practitioner.getBusinessName() : practitioner.getName(),
+                savedBooking.getSlotDate(),
+                savedBooking.getSlotTime(),
+                reasonText
+            );
+            smsNotificationService.sendSms(savedBooking.getClientPhone(), smsMessage);
+        }
+
+        return savedBooking;
     }
     @Transactional
     public Booking blockSlot(Practitioner practitioner, String slotDate, String slotTime) {

@@ -350,6 +350,7 @@ export default function ScheduleTab() {
   }, []);
 
   const [activePending, setActivePending] = useState<{date: string, time: string, apt: Appointment} | null>(null);
+  const [declineReason, setDeclineReason] = useState('');
 
   const handleApprove = async () => {
     if (!activePending || !activePending.apt.id) return;
@@ -378,12 +379,14 @@ export default function ScheduleTab() {
       const token = localStorage.getItem('idealik_token') || localStorage.getItem('token');
       await fetch(`/api/bookings/${activePending.apt.id}/decline`, {
         method: 'PUT',
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ reason: declineReason })
       });
       setAppointments(prev =>
         prev.filter(apt => apt.id !== activePending.apt.id)
       );
       setActivePending(null);
+      setDeclineReason('');
     } catch (err) {
       console.error(err);
     }
@@ -819,16 +822,27 @@ export default function ScheduleTab() {
                 <Check className="w-4 h-4" />
                 {st.confirmBtn}
               </button>
+
+              <div className="pt-2 mt-2 border-t border-outline-variant/20 flex flex-col gap-3">
+                <input
+                  type="text"
+                  placeholder="Reason for declining (optional)"
+                  value={declineReason}
+                  onChange={(e) => setDeclineReason(e.target.value)}
+                  className="w-full bg-white border border-outline-variant/30 text-text-main rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400 transition-all placeholder:text-text-muted/50"
+                />
+                <button
+                  onClick={handleDecline}
+                  className="w-full py-3.5 bg-red-500 hover:bg-red-600 text-white font-extrabold rounded-xl transition-all duration-200 text-sm cursor-pointer shadow-sm flex items-center justify-center gap-2"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  {st.declineBtn}
+                </button>
+              </div>
+
               <button
-                onClick={handleDecline}
-                className="w-full py-3.5 bg-red-500 hover:bg-red-600 text-white font-extrabold rounded-xl transition-all duration-200 text-sm cursor-pointer shadow-sm flex items-center justify-center gap-2"
-              >
-                <Trash2 className="w-4 h-4" />
-                {st.declineBtn}
-              </button>
-              <button
-                onClick={() => setActivePending(null)}
-                className="btn-outline w-full py-3 text-xs"
+                onClick={() => { setActivePending(null); setDeclineReason(''); }}
+                className="btn-outline w-full py-3 text-xs mt-1"
               >
                 {st.cancel}
               </button>

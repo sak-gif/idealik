@@ -112,14 +112,17 @@ public class BookingController {
     @PutMapping("/{id}/decline")
     public ResponseEntity<?> declineBooking(
             @RequestHeader(value = "Authorization", required = false) String token,
-            @PathVariable Long id) {
+            @PathVariable Long id,
+            @RequestBody(required = false) Map<String, String> payload) {
         Practitioner practitioner = authService.resolveToken(token).orElse(null);
         if (practitioner == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Unauthorized"));
         }
 
+        String reason = payload != null ? payload.get("reason") : "";
+
         try {
-            Booking booking = bookingService.declineBooking(practitioner, id);
+            Booking booking = bookingService.declineBooking(practitioner, id, reason);
             return ResponseEntity.ok(Map.of("id", booking.getId(), "status", booking.getBookingStatus()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
