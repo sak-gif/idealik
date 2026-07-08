@@ -58,8 +58,11 @@ function VerifyEmailContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: targetEmail })
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Failed to send verification code.');
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch (e) {}
+      if (!res.ok) throw new Error(data?.message || `Server error (${res.status}). Please try again.`);
       
       setSuccessMsg('Verification code sent! Please check your email.');
       setStep('verify');
@@ -101,22 +104,27 @@ function VerifyEmailContent() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, otp: code, newPassword })
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || 'Password reset failed.');
+        let data: any = {};
+        try {
+          data = await res.json();
+        } catch (e) {}
+        if (!res.ok) throw new Error(data?.message || `Password reset failed (${res.status}).`);
         
         setSuccessMsg('Password reset successfully! Redirecting...');
         setTimeout(() => router.push('/login'), 2000);
         return;
       }
 
-      // Verify OTP standard
       const res = await fetch('/api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, otp: code })
       });
-      const verifyData = await res.json();
-      if (!res.ok) throw new Error(verifyData.message || 'Invalid verification code.');
+      let verifyData: any = {};
+      try {
+        verifyData = await res.json();
+      } catch (e) {}
+      if (!res.ok) throw new Error(verifyData?.message || `Invalid verification code (${res.status}).`);
 
       if (action === 'register') {
         setSuccessMsg('Email verified successfully! Completing registration...');
@@ -129,7 +137,10 @@ function VerifyEmailContent() {
               headers: { 'Content-Type': 'application/json' },
               body: pendingData,
             });
-            const registerData = await registerRes.json();
+            let registerData: any = {};
+            try {
+              registerData = await registerRes.json();
+            } catch (e) {}
             if (registerRes.ok) {
               localStorage.setItem('idealik_token', registerData.token);
               localStorage.setItem('idealik_user', JSON.stringify(registerData));
