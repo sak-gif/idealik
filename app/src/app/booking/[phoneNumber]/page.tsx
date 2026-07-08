@@ -18,6 +18,7 @@ import {
   Calendar,
   Shield,
   Plus,
+  CheckCircle,
   Clock,
   User,
   Mail,
@@ -192,6 +193,7 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
 
   // --- MODAL & BOOKING LOGIC ---
   const [showModal, setShowModal] = useState(false);
+  const [showSuccessCard, setShowSuccessCard] = useState(false);
   const [formData, setFormData] = useState({ fullName: '', email: '', phone: '', notes: '' });
   const [formError, setFormError] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -244,9 +246,8 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
             ? { ...s, status: 'pending' } 
             : s
         ));
-        showToast(t('booking.success'));
         setShowModal(false);
-        setSelectedSlot(null);
+        setShowSuccessCard(true);
       } else {
         const errorData = await res.json();
         setFormError(errorData.message || 'Failed to create booking.');
@@ -571,21 +572,57 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col gap-4">
               <button
                 onClick={handleBookCash}
-                className="btn-gold flex-1 text-sm py-4 bg-amber-500 hover:bg-amber-600 shadow-md flex items-center justify-center gap-2"
+                className="btn-gold w-full text-sm py-4 shadow-md flex items-center justify-center gap-2"
               >
                 <Clock className="w-4 h-4" />
                 {t('booking.cashPayment')}
               </button>
-              <Link
-                href="/payment"
-                className="btn-gold flex-1 text-sm py-4 shadow-md flex items-center justify-center"
-              >
-                Card Payment
-              </Link>
+              
+              <div className="relative">
+                <button
+                  disabled
+                  className="w-full text-sm py-4 rounded-xl font-bold bg-neutral-100 text-neutral-400 cursor-not-allowed border border-neutral-200 flex items-center justify-center gap-2"
+                >
+                  Card Payment
+                </button>
+                <div className="absolute -top-3 right-2 px-2 py-0.5 bg-primary/10 text-primary-dark text-[10px] font-bold rounded-md border border-primary/20">
+                  Will be added soon
+                </div>
+              </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Booking Success Card */}
+      {showSuccessCard && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="card w-full max-w-md relative animate-in flex flex-col items-center text-center shadow-2xl" style={{ padding: '48px 32px' }}>
+            <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6">
+              <CheckCircle className="w-8 h-8" />
+            </div>
+            
+            <h2 className="f-heading font-extrabold text-2xl mb-4 text-text-main">
+              Booking Pending!
+            </h2>
+            
+            <p className="text-sm text-text-light mb-8 leading-relaxed">
+              Your booking is pending now. We will inform you if your booking is accepted. If you have any questions, contact us on <span className="font-bold text-text-main">{providerProfile?.phoneNumber || providerProfile?.phone || ''}</span>.
+            </p>
+
+            <button 
+              onClick={() => {
+                setShowSuccessCard(false);
+                setSelectedSlot(null);
+                setFormData({ fullName: '', email: '', phone: '', notes: '' });
+              }} 
+              className="btn-gold w-full py-4 text-base shadow-md"
+            >
+              OK
+            </button>
           </div>
         </div>
       )}
