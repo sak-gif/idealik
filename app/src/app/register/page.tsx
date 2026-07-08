@@ -7,6 +7,7 @@ import Footer from '@/components/Footer';
 import SparkleDecor from '@/components/SparkleDecor';
 import { useLanguage } from '@/context/LanguageContext';
 import { Building2, Mail, Phone, Lock, Eye, EyeOff, ShieldCheck, ArrowLeft, Loader2 } from 'lucide-react';
+import { setupRecaptcha, sendSmsOtp, verifySmsOtp, ConfirmationResult } from '@/lib/firebase';
 
 export default function RegisterPage() {
   const { t } = useLanguage();
@@ -25,6 +26,7 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
   React.useEffect(() => {
     const pendingData = sessionStorage.getItem('idealik_pending_registration');
@@ -79,20 +81,33 @@ export default function RegisterPage() {
       return;
     }
 
-    setStep('otp');
-    setSuccessMsg('Verification code sent! Please check your email.');
-    
+    if (!phoneNumber || !phoneNumber.startsWith('+')) {
+      setError('Please enter a valid phone number with country code (e.g., +1234567890)');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
     try {
-      // Send email OTP via backend (non-blocking for UI)
-      fetch('/api/auth/send-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      }).catch(err => {
-        console.error("Failed to send OTP:", err);
-      });
+      if (!(window as any).recaptchaVerifier) {
+        setupRecaptcha('create-account-btn');
+      }
+
+      const verifier = (window as any).recaptchaVerifier;
+      const result = await sendSmsOtp(phoneNumber, verifier);
+      setConfirmationResult(result);
+      
+      setSuccessMsg('SMS verification code sent!');
+      setStep('otp');
     } catch (err: any) {
       console.error(err);
+      setError(err.message || 'Failed to send SMS. Please check your phone number.');
+      if ((window as any).recaptchaVerifier) {
+        (window as any).recaptchaVerifier.clear();
+        (window as any).recaptchaVerifier = null;
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -109,24 +124,18 @@ export default function RegisterPage() {
     setSuccessMsg(null);
     
     try {
-      // 1. Verify OTP
-      const verifyRes = await fetch('/api/auth/verify-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, otp: code })
-      });
-      let verifyData: any = {};
-      try {
-        verifyData = await verifyRes.json();
-      } catch {
-        // Response wasn't JSON
+      // 1. Verify SMS OTP via Firebase
+      if (!confirmationResult) {
+        throw new Error('No SMS session found. Please try resending the code.');
       }
-      if (!verifyRes.ok) {
-        throw new Error(verifyData.message || 'Invalid verification code.');
+      
+      const isValid = await verifySmsOtp(confirmationResult, code);
+      if (!isValid) {
+        throw new Error('Invalid or expired SMS code.');
       }
 
       // 2. Register User
-      setSuccessMsg('Email verified successfully! Creating account...');
+      setSuccessMsg('Phone verified successfully! Creating account...');
       
       const registerRes = await fetch('/api/auth/register', {
         method: 'POST',
@@ -384,10 +393,10 @@ export default function RegisterPage() {
               </div>
 
               <h1 className="text-2xl f-heading font-black text-text-main mb-2 text-center">
-                Verify Your Email
+                Verify Your Phone
               </h1>
               <p className="text-sm text-text-muted mb-8 leading-relaxed text-center">
-                We sent a 6-digit verification code to <strong>{email}</strong>. Enter it below to create your account.
+                We sent a 6-digit verification code to <strong>{phoneNumber}</strong>. Enter it below to create your account.
               </p>
 
               {error && (
