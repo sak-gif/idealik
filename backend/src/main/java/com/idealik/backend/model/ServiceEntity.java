@@ -21,6 +21,9 @@ public class ServiceEntity {
     @Column(precision = 10, scale = 2)
     private BigDecimal price;
 
+    @Column(name = "currency", length = 3)
+    private String currency; // e.g. "USD", "TRY", "SAR"
+
     @Column(name = "photo_url", columnDefinition = "LONGTEXT")
     private String photoUrl;
 
@@ -60,6 +63,14 @@ public class ServiceEntity {
 
     public void setPrice(BigDecimal price) {
         this.price = price;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
     }
 
     public String getPhotoUrl() {

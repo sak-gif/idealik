@@ -9,6 +9,7 @@ import Footer from '@/components/Footer';
 import SparkleDecor from '@/components/SparkleDecor';
 import GlobalLoader from '@/components/GlobalLoader';
 import { useLanguage } from '@/context/LanguageContext';
+import TranslatedText from '@/components/TranslatedText';
 import { formatPrice } from '@/lib/translate';
 import {
   ChevronLeft,
@@ -375,7 +376,7 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
                   </svg>
                 </div>
                 <h2 className="f-heading font-black text-2xl mb-1 text-text-main">{providerProfile?.businessName || t('customer.bio')}</h2>
-                <p className="text-xs f-heading max-w-md mx-auto leading-relaxed text-text-light mb-2">{providerProfile?.description || t('customer.bioFull')}</p>
+                <p className="text-xs f-heading max-w-md mx-auto leading-relaxed text-text-light mb-2">{providerProfile?.description ? <TranslatedText text={providerProfile.description} /> : t('customer.bioFull')}</p>
               </div>
 
               {/* Service Cards */}
@@ -394,8 +395,8 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
                   >
                     <Image src={svc.photoUrl || '/telehealth.png'} alt={svc.title} width={100} height={80} className="w-[90px] h-[72px] rounded-lg object-cover flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <h3 className="f-heading font-bold text-sm mb-1 text-text-main">{svc.title}{svc.price ? ` - ${formatPrice(svc.price, language)}` : ''}</h3>
-                      <p className="text-xs leading-relaxed text-text-muted">{svc.description}</p>
+                      <h3 className="f-heading font-bold text-sm mb-1 text-text-main"><TranslatedText text={svc.title} />{svc.price ? ` - ${formatPrice(svc.price, language, svc.currency)}` : ''}</h3>
+                      <p className="text-xs leading-relaxed text-text-muted"><TranslatedText text={svc.description} /></p>
                     </div>
                   </div>
                 ))}

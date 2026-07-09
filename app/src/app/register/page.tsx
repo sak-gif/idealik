@@ -65,22 +65,22 @@ export default function RegisterPage() {
     setSuccessMsg(null);
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('auth.errPasswordMismatch'));
       return;
     }
 
     if (password.length < 8) {
-      setError('Password must be at least 8 characters long');
+      setError(t('auth.errPasswordLength'));
       return;
     }
 
     if (!agree) {
-      setError('You must agree to the Terms of Service and Privacy Policy');
+      setError(t('auth.errAgreeTerms'));
       return;
     }
 
     if (!phoneNumber || !phoneNumber.startsWith('+')) {
-      setError('Please enter a valid phone number with country code (e.g., +1234567890)');
+      setError(t('auth.errInvalidPhone'));
       return;
     }
 

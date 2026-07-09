@@ -79,7 +79,15 @@
     "verifying": "Doğrulanıyor...",
     "verifyCreate": "Doğrula ve Hesap Oluştur",
     "didntReceive": "Kod almadınız mı?",
-    "resend": "Tekrar Gönder"
+    "resend": "Tekrar Gönder",
+    "pwTooShort": "Çok kısa (en az 8)",
+    "pwWeak": "Zayıf",
+    "pwGood": "İyi",
+    "pwStrong": "Güçlü",
+    "errPasswordMismatch": "Şifreler eşleşmiyor",
+    "errPasswordLength": "Şifre en az 8 karakter olmalıdır",
+    "errAgreeTerms": "Hizmet Şartları ve Gizlilik Politikası'nı kabul etmelisiniz",
+    "errInvalidPhone": "Lütfen ülke kodu ile geçerli bir telefon numarası girin (ör: +905550123456)"
   },
   "booking": {
     "fullName": "Tam Adı",

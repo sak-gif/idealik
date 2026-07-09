@@ -79,7 +79,15 @@
     "verifying": "جار التحقق...",
     "verifyCreate": "تحقق وأنشئ الحساب",
     "didntReceive": "لم تتلقَ رمزًا؟",
-    "resend": "إعادة إرسال"
+    "resend": "إعادة إرسال",
+    "pwTooShort": "قصير جدًا (الأدنى 8)",
+    "pwWeak": "ضعيف",
+    "pwGood": "جيد",
+    "pwStrong": "قوي",
+    "errPasswordMismatch": "كلمات المرور غير متطابقة",
+    "errPasswordLength": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل",
+    "errAgreeTerms": "يجب عليك الموافقة على شروط الخدمة وسياسة الخصوصية",
+    "errInvalidPhone": "يرجى إدخال رقم هاتف صحيح مع رمز الدولة (مثال: +1234567890)"
   },
   "booking": {
     "fullName": "الاسم الكامل",

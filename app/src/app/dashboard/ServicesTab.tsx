@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useLanguage } from '@/context/LanguageContext';
 import { formatPrice } from '@/lib/translate';
 import { Settings, Trash2, Plus, QrCode, X, Eye, CheckCircle, AlertTriangle, User } from 'lucide-react';
+import TranslatedText from '@/components/TranslatedText';
 import QRCode from 'react-qr-code';
 import GlobalLoader from '@/components/GlobalLoader';
 
@@ -37,6 +38,7 @@ export default function ServicesTab() {
   const [newTitle, setNewTitle] = useState('');
   const [newDesc, setNewDesc] = useState('');
   const [newPrice, setNewPrice] = useState('');
+  const [newCurrency, setNewCurrency] = useState('USD');
   const [newImage, setNewImage] = useState('/telehealth.png');
   const [editingServiceId, setEditingServiceId] = useState<number | null>(null);
   const [modalError, setModalError] = useState<string | null>(null);
@@ -195,6 +197,7 @@ export default function ServicesTab() {
     setNewTitle('');
     setNewDesc('');
     setNewPrice('');
+    setNewCurrency('USD');
     setNewImage('/telehealth.png');
     setModalError(null);
   };
@@ -204,6 +207,7 @@ export default function ServicesTab() {
     setNewTitle(svc.title);
     setNewDesc(svc.description || '');
     setNewPrice(svc.price);
+    setNewCurrency(svc.currency || 'USD');
     setNewImage(svc.photoUrl || '/telehealth.png');
     setShowAddModal(true);
   };
@@ -231,7 +235,8 @@ export default function ServicesTab() {
         body: JSON.stringify({
           title: newTitle,
           description: newDesc,
-          price: newPrice.trim() !== '' ? parseFloat(newPrice) : null,
+          price: newPrice.toString().trim() !== '' ? parseFloat(newPrice.toString()) : null,
+          currency: newCurrency,
           photoUrl: newImage
         })
       });
@@ -419,15 +424,19 @@ export default function ServicesTab() {
                   className="w-[120px] h-[90px] rounded-lg object-cover flex-shrink-0"
                 />
                 <div className="flex-1 min-w-0">
-                  <h3 className="f-heading font-bold text-sm mb-1" style={{ color: '#1A1C1C' }}>{svc.title}</h3>
-                  <p className="text-xs leading-relaxed mt-1 mb-3" style={{ color: '#4C463A' }}>{svc.description}</p>
+                  <h3 className="f-heading font-bold text-sm mb-1" style={{ color: '#1A1C1C' }}>
+                    <TranslatedText text={svc.title} />
+                  </h3>
+                  <p className="text-xs leading-relaxed mt-1 mb-3" style={{ color: '#4C463A' }}>
+                    <TranslatedText text={svc.description} />
+                  </p>
                   <div className="flex items-center gap-3">
                     <span className="text-xs f-heading font-semibold" style={{ color: '#1A1C1C' }}>{t('services.price')}</span>
                     <span
                       className="px-3 py-1 rounded-md text-xs f-heading font-bold"
                       style={{ border: '1px solid #CFC5B6', color: '#1A1C1C', background: '#fff' }}
                     >
-                      {svc.price ? formatPrice(svc.price, language) : t('services.price') + ' —'}
+                      {svc.price ? formatPrice(svc.price, language, svc.currency) : t('services.price') + ' —'}
                     </span>
                   </div>
                 </div>
@@ -550,16 +559,28 @@ export default function ServicesTab() {
 
               <div>
                 <label className="block text-xs f-heading font-semibold mb-2 text-text-main">
-                  {t('services.price')} ({t('services.currencySymbol')})
+                  {t('services.price')}
                 </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={newPrice}
-                  onChange={(e) => setNewPrice(e.target.value)}
-                  className="input-field input-no-icon text-sm h-[46px]"
-                  placeholder="e.g. 120.00 (Optional)"
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={newPrice}
+                    onChange={(e) => setNewPrice(e.target.value)}
+                    className="input-field input-no-icon text-sm h-[46px] flex-1"
+                    placeholder="e.g. 120.00 (Optional)"
+                  />
+                  <select
+                    value={newCurrency}
+                    onChange={(e) => setNewCurrency(e.target.value)}
+                    className="input-field input-no-icon text-sm h-[46px] w-[100px] cursor-pointer"
+                    style={{ background: '#fff', border: '1px solid #E8E8E8' }}
+                  >
+                    <option value="USD">USD ($)</option>
+                    <option value="TRY">TRY (₺)</option>
+                    <option value="SAR">SAR (ر.س)</option>
+                  </select>
+                </div>
               </div>
 
               <div>

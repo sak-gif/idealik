@@ -141,10 +141,21 @@ export function useTranslatedText(text: string, language: string): string {
  * @param language Active language code: 'EN' | 'AR' | 'TR'
  * @returns        Formatted string like "$120", "120 ₺", or "120 ر.س"
  */
-export function formatPrice(price: number | string | null | undefined, language: string): string {
+export function formatPrice(price: number | string | null | undefined, language: string, currency?: string): string {
   if (price === null || price === undefined || price === '') return '';
   const p = typeof price === 'string' ? price : price.toString();
 
+  // If a specific currency is provided, format with it directly
+  if (currency) {
+    switch (currency.toUpperCase()) {
+      case 'TRY': return `${p} ₺`;
+      case 'SAR': return `${p} ر.س`;
+      case 'USD': return `$${p}`;
+      default: return `${p} ${currency}`;
+    }
+  }
+
+  // Fallback to language-based currency format
   switch (language) {
     case 'TR':
       return `${p} ₺`;

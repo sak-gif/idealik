@@ -49,7 +49,7 @@ function VerifyEmailContent() {
 
   const handleSendOtp = async (targetPhone: string) => {
     if (!targetPhone || !targetPhone.startsWith('+')) {
-      setError('Please enter a valid phone number with country code (e.g., +1234567890).');
+      setError(t('auth.errInvalidPhone'));
       return;
     }
     setLoading(true);
@@ -80,7 +80,7 @@ function VerifyEmailContent() {
     e.preventDefault();
     const code = otp.join('');
     if (code.length < 6) {
-      setError('Please enter the full 6-digit code.');
+      setError(t('verify.enterCode'));
       return;
     }
 
@@ -88,11 +88,11 @@ function VerifyEmailContent() {
 
     if (action === 'forgot-password') {
       if (newPassword.length < 8) {
-        setError('Password must be at least 8 characters long.');
+        setError(t('auth.errPasswordLength'));
         return;
       }
       if (newPassword !== confirmPassword) {
-        setError('Passwords do not match.');
+        setError(t('auth.errPasswordMismatch'));
         return;
       }
     }
