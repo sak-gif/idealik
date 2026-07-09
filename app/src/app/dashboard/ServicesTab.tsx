@@ -8,7 +8,7 @@ import QRCode from 'react-qr-code';
 import GlobalLoader from '@/components/GlobalLoader';
 
 export default function ServicesTab() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [businessName, setBusinessName] = useState('');
@@ -426,7 +426,7 @@ export default function ServicesTab() {
                       className="px-3 py-1 rounded-md text-xs f-heading font-bold"
                       style={{ border: '1px solid #CFC5B6', color: '#1A1C1C', background: '#fff' }}
                     >
-                      {svc.price ? `$${svc.price}` : 'Price not set'}
+                      {svc.price ? (language === 'TR' ? `${svc.price} ₺` : language === 'AR' ? `${svc.price} ر.س` : `$${svc.price}`) : 'Price not set'}
                     </span>
                   </div>
                 </div>
@@ -548,7 +548,9 @@ export default function ServicesTab() {
               </div>
 
               <div>
-                <label className="block text-xs f-heading font-semibold mb-2 text-text-main">Price ($)</label>
+                <label className="block text-xs f-heading font-semibold mb-2 text-text-main">
+                  {t('services.price')} ({language === 'TR' ? '₺' : language === 'AR' ? 'ر.س' : '$'})
+                </label>
                 <input
                   type="number"
                   step="0.01"
