@@ -192,6 +192,10 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
 
   // --- MODAL & BOOKING LOGIC ---
   const [showModal, setShowModal] = useState(false);
+  const [modalStep, setModalStep] = useState<'details' | 'otp'>('details');
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const [showSuccessCard, setShowSuccessCard] = useState(false);
   const [formData, setFormData] = useState({ fullName: '', email: '', phone: '', notes: '' });
   const [formError, setFormError] = useState<string | null>(null);
@@ -206,34 +210,82 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
 
   const handleConfirmClick = () => {
     setShowModal(true);
+    setModalStep('details');
+    setOtp(['', '', '', '', '', '']);
+    setFormError(null);
   };
 
-  const handleBookCash = async () => {
+  const handleSendOtp = async () => {
     if (!formData.fullName || !formData.email || !formData.phone) {
       setFormError('Please fill in all required fields (Name, Email, Phone).');
       return;
     }
-
-
+    if (!formData.phone.startsWith('+')) {
+      setFormError('Phone must include country code (e.g. +1234567890)');
+      return;
+    }
     
+    setIsSendingOtp(true);
+    setFormError(null);
+    try {
+      const res = await fetch('/api/auth/send-phone-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: formData.phone }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || 'Failed to send verification code.');
+      }
+      setModalStep('otp');
+      showToast('Verification code sent!', 'success');
+    } catch (err: any) {
+      console.error(err);
+      setFormError(err.message || 'Failed to send SMS.');
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
+
+  const handleBookCash = async () => {
+    const code = otp.join('');
+    if (code.length < 6) {
+      setFormError('Please enter the full 6-digit code.');
+      return;
+    }
+
     if (!selectedSlot || !providerProfile) return;
 
-    const dayObj = daysOfWeek[selectedSlot.dayIdx];
-    const slotTime = timeSlots[selectedSlot.timeIdx];
-
-    const bookingRequest = {
-      fullName: formData.fullName,
-      email: formData.email,
-      phone: formData.phone,
-      notes: formData.notes,
-      serviceId: selectedService || undefined,
-      slotDate: dayObj.isoDate,
-      slotTime: slotTime,
-      paymentMethod: 'cash',
-      practitionerId: providerProfile.id
-    };
-
+    setIsVerifyingOtp(true);
+    setFormError(null);
     try {
+      // 1. Verify OTP
+      const verifyRes = await fetch('/api/auth/verify-phone-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: formData.phone, otp: code }),
+      });
+      
+      if (!verifyRes.ok) {
+        throw new Error('Invalid or expired SMS code.');
+      }
+
+      // 2. Create Booking
+      const dayObj = daysOfWeek[selectedSlot.dayIdx];
+      const slotTime = timeSlots[selectedSlot.timeIdx];
+
+      const bookingRequest = {
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        notes: formData.notes,
+        serviceId: selectedService || undefined,
+        slotDate: dayObj.isoDate,
+        slotTime: slotTime,
+        paymentMethod: 'cash',
+        practitionerId: providerProfile.id
+      };
+
       const res = await fetch('/api/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -251,9 +303,27 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
         const errorData = await res.json();
         setFormError(errorData.message || 'Failed to create booking.');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setFormError('An error occurred. Please try again.');
+      setFormError(err.message || 'An error occurred. Please try again.');
+    } finally {
+      setIsVerifyingOtp(false);
+    }
+  };
+
+  const handleOtpChange = (index: number, value: string) => {
+    if (!/^\d*$/.test(value)) return;
+    const newOtp = [...otp];
+    newOtp[index] = value.slice(-1);
+    setOtp(newOtp);
+    if (value && index < 5) {
+      document.getElementById(`booking-otp-${index + 1}`)?.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+      document.getElementById(`booking-otp-${index - 1}`)?.focus();
     }
   };
 
@@ -523,75 +593,141 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
               </div>
             )}
 
-            <div className="space-y-4 mb-8">
-              <div className="input-wrap">
-                <User className="input-icon" />
-                <input
-                  type="text"
-                  placeholder={t('booking.fullName')}
-                  className="input-field"
-                  value={formData.fullName}
-                  onChange={e => setFormData({ ...formData, fullName: e.target.value })}
-                  required
-                />
-              </div>
+            {modalStep === 'details' ? (
+              <>
+                <div className="space-y-4 mb-8">
+                  <div className="input-wrap">
+                    <User className="input-icon" />
+                    <input
+                      type="text"
+                      placeholder={t('booking.fullName')}
+                      className="input-field"
+                      value={formData.fullName}
+                      onChange={e => setFormData({ ...formData, fullName: e.target.value })}
+                      required
+                    />
+                  </div>
 
-              <div className="input-wrap">
-                <Mail className="input-icon" />
-                <input
-                  type="email"
-                  placeholder={t('booking.email')}
-                  className="input-field"
-                  value={formData.email}
-                  onChange={e => setFormData({ ...formData, email: e.target.value })}
-                  required
-                />
-              </div>
+                  <div className="input-wrap">
+                    <Mail className="input-icon" />
+                    <input
+                      type="email"
+                      placeholder={t('booking.email')}
+                      className="input-field"
+                      value={formData.email}
+                      onChange={e => setFormData({ ...formData, email: e.target.value })}
+                      required
+                    />
+                  </div>
 
-              <div className="input-wrap">
-                <Phone className="input-icon" />
-                <input
-                  type="tel"
-                  placeholder={t('booking.phone')}
-                  className="input-field"
-                  value={formData.phone}
-                  onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                  required
-                />
-              </div>
+                  <div className="input-wrap">
+                    <Phone className="input-icon" />
+                    <input
+                      type="tel"
+                      placeholder={t('booking.phone') + " (+1234567890)"}
+                      className="input-field"
+                      value={formData.phone}
+                      onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                      required
+                    />
+                  </div>
 
-              <div className="input-wrap">
-                <FileText className="input-icon" style={{ top: '24px' }} />
-                <textarea
-                  placeholder={t('booking.notes')}
-                  className="input-field min-h-[100px] resize-y py-3"
-                  value={formData.notes}
-                  onChange={e => setFormData({ ...formData, notes: e.target.value })}
-                />
-              </div>
-            </div>
+                  <div className="input-wrap">
+                    <FileText className="input-icon" style={{ top: '24px' }} />
+                    <textarea
+                      placeholder={t('booking.notes')}
+                      className="input-field min-h-[100px] resize-y py-3"
+                      value={formData.notes}
+                      onChange={e => setFormData({ ...formData, notes: e.target.value })}
+                    />
+                  </div>
+                </div>
 
-            <div className="flex flex-col gap-4">
-              <button
-                onClick={handleBookCash}
-                className="btn-gold w-full text-sm py-4 shadow-md flex items-center justify-center gap-2"
-              >
-                <Clock className="w-4 h-4" />
-                {t('booking.cashPayment')}
-              </button>
-              
-              <div className="relative">
-                <button
-                  disabled
-                  className="w-full text-sm py-4 rounded-xl font-bold bg-neutral-100 text-neutral-400 cursor-not-allowed border border-neutral-200 flex items-center justify-center gap-2"
+                <div className="flex flex-col gap-4">
+                  <button
+                    onClick={handleSendOtp}
+                    disabled={isSendingOtp}
+                    className="btn-gold w-full text-sm py-4 shadow-md flex items-center justify-center gap-2"
+                  >
+                    {isSendingOtp ? (
+                      <span className="flex items-center gap-2"><Clock className="w-4 h-4 animate-spin" /> Sending SMS...</span>
+                    ) : (
+                      <>
+                        <Clock className="w-4 h-4" />
+                        {t('booking.cashPayment')}
+                      </>
+                    )}
+                  </button>
+                  
+                  <div className="relative">
+                    <button
+                      disabled
+                      className="w-full text-sm py-4 rounded-xl font-bold bg-neutral-100 text-neutral-400 cursor-not-allowed border border-neutral-200 flex items-center justify-center gap-2"
+                    >
+                      Card Payment
+                    </button>
+                    <div className="absolute -top-3 right-2 px-2 py-0.5 bg-primary/10 text-primary-dark text-[10px] font-bold rounded-md border border-primary/20">
+                      Will be added soon
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="animate-in fade-in zoom-in-95 duration-300">
+                <button 
+                  onClick={() => { setModalStep('details'); setFormError(null); }}
+                  className="flex items-center gap-2 text-text-light hover:text-text-main transition-colors mb-6 text-sm font-semibold"
                 >
-                  Card Payment
+                  <ArrowLeft className="w-4 h-4" />
+                  Back
                 </button>
-                <div className="absolute -top-3 right-2 px-2 py-0.5 bg-primary/10 text-primary-dark text-[10px] font-bold rounded-md border border-primary/20">
-                  Will be added soon
+                <div className="text-center mb-6">
+                  <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center mb-4 border border-primary/30 mx-auto">
+                    <Shield className="w-7 h-7 text-primary-light" />
+                  </div>
+                  <h3 className="font-extrabold text-xl text-text-main mb-2">Verify Your Phone</h3>
+                  <p className="text-sm text-text-muted">Enter the 6-digit code sent to <br/><strong className="text-text-main">{formData.phone}</strong></p>
+                </div>
+                
+                <div className="flex justify-center gap-2 mb-8">
+                  {otp.map((digit, index) => (
+                    <input
+                      key={index}
+                      id={`booking-otp-${index}`}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={1}
+                      value={digit}
+                      onChange={(e) => handleOtpChange(index, e.target.value)}
+                      onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                      className="w-10 h-12 sm:w-12 sm:h-14 bg-white border border-outline-variant/30 rounded-xl text-center text-lg sm:text-xl font-bold focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-text-main"
+                      required
+                    />
+                  ))}
+                </div>
+
+                <div className="flex flex-col gap-4">
+                  <button
+                    onClick={handleBookCash}
+                    disabled={isVerifyingOtp || otp.join('').length < 6}
+                    className="btn-gold w-full text-sm py-4 shadow-md flex items-center justify-center gap-2"
+                  >
+                    {isVerifyingOtp ? (
+                      <span className="flex items-center gap-2"><Clock className="w-4 h-4 animate-spin" /> Verifying...</span>
+                    ) : (
+                      'Verify & Confirm Booking'
+                    )}
+                  </button>
+                  <button
+                    onClick={handleSendOtp}
+                    disabled={isSendingOtp}
+                    className="w-full text-sm py-3 text-text-light hover:text-primary transition-colors font-semibold"
+                  >
+                    {isSendingOtp ? 'Sending...' : "Didn't receive a code? Resend"}
+                  </button>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       )}
