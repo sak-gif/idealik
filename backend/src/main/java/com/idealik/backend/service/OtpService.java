@@ -40,21 +40,25 @@ public class OtpService {
     @Value("${twilio.auth.token:}")
     private String twilioAuthToken;
 
-    @Value("${twilio.verify.service.sid:VAb098f0d3a3f352cec33aa7b871563b90}")
+    @Value("${twilio.verify.service.sid:}")
     private String twilioVerifyServiceSid;
 
     private boolean isTwilioVerifyConfigured = false;
 
     @PostConstruct
     public void initTwilio() {
-        if (twilioAccountSid != null && !twilioAccountSid.isEmpty() && 
-            twilioAuthToken != null && !twilioAuthToken.isEmpty()) {
+        if (twilioAccountSid != null && !twilioAccountSid.trim().isEmpty() && 
+            twilioAuthToken != null && !twilioAuthToken.trim().isEmpty() &&
+            twilioVerifyServiceSid != null && !twilioVerifyServiceSid.trim().isEmpty()) {
             try {
                 Twilio.init(twilioAccountSid, twilioAuthToken);
                 isTwilioVerifyConfigured = true;
+                System.out.println("Twilio Verify service initialized successfully. Service SID: " + twilioVerifyServiceSid);
             } catch (Exception e) {
                 System.err.println("Failed to initialize Twilio Verify: " + e.getMessage());
             }
+        } else {
+            System.out.println("Twilio Verify not configured. Missing TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, or TWILIO_VERIFY_SERVICE_SID.");
         }
     }
 
