@@ -156,7 +156,7 @@ export default function LoginPage() {
             </div>
 
             <button type="submit" className="btn-gold w-full py-4 text-base" id="sign-in-btn" disabled={loading}>
-              {loading ? 'Signing In...' : t('auth.signIn')}
+              {loading ? t('auth.signingIn') : t('auth.signIn')}
             </button>
 
 

@@ -46,7 +46,7 @@ export default function RegisterPage() {
 
   const getPasswordStrength = (pw: string) => {
     if (!pw) return null;
-    if (pw.length < 8) return { label: 'Too short (min 8)', color: '#ef4444', pct: '25%' };
+    if (pw.length < 8) return { label: t('auth.pwTooShort'), color: '#ef4444', pct: '25%' };
     
     let strength = 0;
     if (/[a-z]/.test(pw)) strength++;
@@ -54,9 +54,9 @@ export default function RegisterPage() {
     if (/\d/.test(pw)) strength++;
     if (/[^a-zA-Z\d]/.test(pw)) strength++;
 
-    if (strength <= 1) return { label: 'Weak', color: '#ef4444', pct: '50%' };
-    if (strength === 2) return { label: 'Good', color: '#eab308', pct: '75%' };
-    return { label: 'Strong', color: '#22c55e', pct: '100%' };
+    if (strength <= 1) return { label: t('auth.pwWeak'), color: '#ef4444', pct: '50%' };
+    if (strength === 2) return { label: t('auth.pwGood'), color: '#eab308', pct: '75%' };
+    return { label: t('auth.pwStrong'), color: '#22c55e', pct: '100%' };
   };
 
   const handleSendOtp = async (e?: React.FormEvent) => {
@@ -291,7 +291,7 @@ export default function RegisterPage() {
                 {password && (
                   <div className="px-1">
                     <div className="flex justify-between items-center mb-1.5 text-xs font-semibold">
-                      <span style={{ color: '#7E7669' }}>Password Strength</span>
+                      <span style={{ color: '#7E7669' }}>{t('auth.passwordStrength')}</span>
                       <span style={{ color: getPasswordStrength(password)?.color }}>{getPasswordStrength(password)?.label}</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
@@ -345,7 +345,7 @@ export default function RegisterPage() {
                 </label>
 
                 <button type="submit" className="btn-gold w-full py-4 text-base" id="create-account-btn" disabled={loading}>
-                  {loading ? 'Sending Code...' : t('auth.createBtn')}
+                  {loading ? t('auth.sendingCode') : t('auth.createBtn')}
                 </button>
 
 
@@ -364,7 +364,7 @@ export default function RegisterPage() {
                 className="flex items-center gap-2 text-text-light hover:text-text-main transition-colors mb-6 text-sm font-semibold"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Back to Details
+                {t('auth.backToDetails')}
               </button>
 
               <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 border mx-auto" style={{ background: '#f8f4e6', borderColor: '#e6d5b3' }}>
@@ -372,10 +372,10 @@ export default function RegisterPage() {
               </div>
 
               <h1 className="text-2xl f-heading font-black text-text-main mb-2 text-center">
-                Verify Your Phone
+                {t('auth.verifyPhone')}
               </h1>
               <p className="text-sm text-text-muted mb-8 leading-relaxed text-center">
-                We sent a 6-digit verification code to <strong>{phoneNumber}</strong>. Enter it below to create your account.
+                {t('auth.verifyPhoneDesc')} <strong>{phoneNumber}</strong>{t('auth.verifyPhoneDesc2')}
               </p>
 
               {error && (
@@ -419,10 +419,10 @@ export default function RegisterPage() {
                     {loading ? (
                       <>
                         <Loader2 className="w-5 h-5 animate-spin" />
-                        Verifying...
+                        {t('auth.verifying')}
                       </>
                     ) : (
-                      'Verify & Create Account'
+                      t('auth.verifyCreate')
                     )}
                   </button>
 
@@ -433,7 +433,7 @@ export default function RegisterPage() {
                     className="w-full py-3 text-sm font-semibold transition-colors bg-transparent border-none"
                     style={{ color: '#7E7669' }}
                   >
-                    Didn't receive a code? <span style={{ color: '#C2A86F' }} className="hover:underline">Resend</span>
+                    {t('auth.didntReceive')} <span style={{ color: '#C2A86F' }} className="hover:underline">{t('auth.resend')}</span>
                   </button>
                 </div>
               </form>

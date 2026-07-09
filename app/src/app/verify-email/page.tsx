@@ -7,10 +7,12 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Phone, ArrowRight, ShieldCheck, ArrowLeft, Loader2 } from 'lucide-react';
 import SparkleDecor from '@/components/SparkleDecor';
 import GlobalLoader from '@/components/GlobalLoader';
+import { useLanguage } from '@/context/LanguageContext';
 
 function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useLanguage();
   
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -25,7 +27,7 @@ function VerifyEmailContent() {
 
   const getPasswordStrength = (pw: string) => {
     if (!pw) return null;
-    if (pw.length < 8) return { label: 'Too short (min 8)', color: '#ef4444', pct: '25%' };
+    if (pw.length < 8) return { label: t('auth.pwTooShort'), color: '#ef4444', pct: '25%' };
     
     let strength = 0;
     if (/[a-z]/.test(pw)) strength++;
@@ -33,9 +35,9 @@ function VerifyEmailContent() {
     if (/\d/.test(pw)) strength++;
     if (/[^a-zA-Z\d]/.test(pw)) strength++;
 
-    if (strength <= 1) return { label: 'Weak', color: '#ef4444', pct: '50%' };
-    if (strength === 2) return { label: 'Good', color: '#eab308', pct: '75%' };
-    return { label: 'Strong', color: '#22c55e', pct: '100%' };
+    if (strength <= 1) return { label: t('auth.pwWeak'), color: '#ef4444', pct: '50%' };
+    if (strength === 2) return { label: t('auth.pwGood'), color: '#eab308', pct: '75%' };
+    return { label: t('auth.pwStrong'), color: '#22c55e', pct: '100%' };
   };
 
   useEffect(() => {
@@ -225,7 +227,7 @@ function VerifyEmailContent() {
           className="flex items-center gap-2 text-text-light hover:text-text-main transition-colors mb-8 text-sm font-semibold"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back
+          {t('common.back')}
         </button>
 
         <div className="card p-8 md:p-10 relative">
@@ -240,12 +242,12 @@ function VerifyEmailContent() {
           </div>
 
           <h1 className="text-3xl f-heading font-black text-text-main mb-2 text-center">
-            {step === 'request' ? 'Verify Phone' : 'Enter Code'}
+            {step === 'request' ? t('verify.verifyPhone') : t('verify.enterCode')}
           </h1>
           <p className="text-sm text-text-muted mb-8 leading-relaxed text-center">
-            {step === 'request' 
-              ? 'Enter your phone number to receive a secure 6-digit verification code.'
-              : `We sent a 6-digit verification code to ${phoneNumber}. Enter it below.`}
+            {step === 'request'
+              ? t('verify.requestDesc')
+              : t('verify.codeDesc').replace('{phone}', phoneNumber)}
           </p>
 
           {error && (
@@ -264,7 +266,7 @@ function VerifyEmailContent() {
             <div className="space-y-6">
               <div>
                 <label className="block text-xs font-bold text-text-main uppercase tracking-wider mb-2">
-                  Phone Number
+                  {t('verify.phoneLabel')}
                 </label>
                 <input
                   type="tel"
@@ -286,11 +288,11 @@ function VerifyEmailContent() {
                 {loading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    Sending Code...
+                    {t('verify.sendingCode')}
                   </>
                 ) : (
                   <>
-                    Send Verification Code
+                    {t('verify.sendCode')}
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </>
                 )}
@@ -320,14 +322,14 @@ function VerifyEmailContent() {
                 <div className="space-y-4 pt-2">
                   <div>
                     <label className="block text-xs font-bold text-text-main uppercase tracking-wider mb-2">
-                      New Password
+                      {t('verify.newPassword')}
                     </label>
                     <input
                       type="password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       className="w-full bg-bg-main border border-outline-variant/30 rounded-xl px-4 py-3 text-text-main text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                      placeholder="Enter new password"
+                      placeholder={t('verify.newPassword')}
                       required
                     />
                   </div>
@@ -335,7 +337,7 @@ function VerifyEmailContent() {
                   {newPassword && (
                     <div className="px-1">
                       <div className="flex justify-between items-center mb-1.5 text-xs font-semibold">
-                        <span className="text-text-muted">Strength</span>
+                        <span className="text-text-muted">{t('verify.strength')}</span>
                         <span style={{ color: getPasswordStrength(newPassword)?.color }}>{getPasswordStrength(newPassword)?.label}</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
@@ -352,14 +354,14 @@ function VerifyEmailContent() {
 
                   <div>
                     <label className="block text-xs font-bold text-text-main uppercase tracking-wider mb-2">
-                      Confirm New Password
+                      {t('verify.confirmNewPassword')}
                     </label>
                     <input
                       type="password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       className="w-full bg-bg-main border border-outline-variant/30 rounded-xl px-4 py-3 text-text-main text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                      placeholder="Confirm new password"
+                      placeholder={t('verify.confirmNewPassword')}
                       required
                     />
                   </div>
@@ -375,12 +377,12 @@ function VerifyEmailContent() {
                   {loading ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      Processing...
+                      {t('verify.processing')}
                     </>
                   ) : searchParams.get('action') === 'forgot-password' ? (
-                    'Reset Password'
+                    t('verify.resetPassword')
                   ) : (
-                    'Verify Code'
+                    t('verify.verifyCode')
                   )}
                 </button>
 
@@ -390,7 +392,7 @@ function VerifyEmailContent() {
                   disabled={loading}
                   className="w-full py-3 text-sm font-semibold text-text-light hover:text-primary transition-colors bg-transparent border-none"
                 >
-                  Didn't receive a code? Resend
+                  {t('verify.didntReceive')}
                 </button>
               </div>
             </form>

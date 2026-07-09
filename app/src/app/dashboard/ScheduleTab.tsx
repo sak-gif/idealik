@@ -651,7 +651,7 @@ export default function ScheduleTab() {
               {/* Day Headers row */}
               <div className="grid gap-3 mb-4" style={{ gridTemplateColumns: `80px repeat(${daysOfWeek.length}, minmax(0, 1fr))` }}>
                 <div className="text-center font-bold text-xs uppercase text-text-light flex items-center justify-center">
-                  Time
+                  {t('schedule.date')}
                 </div>
                 {daysOfWeek.map((day, idx) => (
                   <div
@@ -694,7 +694,7 @@ export default function ScheduleTab() {
                                      onClick={(e) => {
                                        e.stopPropagation();
                                        setConfirmAction({
-                                         message: 'Cancel this confirmed booking? This action cannot be undone.',
+                                         message: t('schedule.cancelBooking'),
                                          onConfirm: async () => {
                                            if (apt.id) {
                                              const token = localStorage.getItem('idealik_token') || localStorage.getItem('token');
@@ -709,7 +709,7 @@ export default function ScheduleTab() {
                                        });
                                      }}>
                                   <Trash2 className="w-4 h-4 text-white mb-1" />
-                                  <span className="text-[9px] font-bold">Cancel</span>
+                                  <span className="text-[9px] font-bold">{t('common.cancel')}</span>
                                 </div>
                               </div>
                             );
@@ -719,7 +719,7 @@ export default function ScheduleTab() {
                               <div key={dayIdx} className="group relative bg-amber-500 text-white rounded-xl p-1 flex flex-col items-center justify-center shadow-sm border border-amber-600 transition-all duration-200 min-h-[50px] overflow-hidden">
                                 <div className="flex flex-col items-center group-hover:opacity-0 transition-opacity duration-200">
                                   <Clock className="w-4 h-4 text-white mb-0.5 animate-pulse" />
-                                  <span className="text-[9px] font-bold text-center leading-tight">Pending</span>
+                                  <span className="text-[9px] font-bold text-center leading-tight">{st.pending.split(' ')[0]}</span>
                                 </div>
                                 
                                 {/* Inline Hover Actions for Pending */}
@@ -727,7 +727,7 @@ export default function ScheduleTab() {
                                   className="absolute inset-0 bg-amber-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
                                   onClick={() => setActivePending({date: day.isoDate, time, apt})}
                                 >
-                                  <span className="text-[10px] font-bold text-white">Details</span>
+                                  <span className="text-[10px] font-bold text-white">{t('schedule.details')}</span>
                                 </div>
                               </div>
                             );
@@ -738,7 +738,7 @@ export default function ScheduleTab() {
                                   onClick={() => removeException((content.data as Exception).id, day.isoDate, time)}>
                                <span className="group-hover:opacity-0 transition-opacity duration-200">{(content.data as Exception).reason}</span>
                                <div className="absolute inset-0 bg-neutral-300 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                  <span className="text-[9px] font-bold text-neutral-600">Remove</span>
+                                  <span className="text-[9px] font-bold text-neutral-600">{t('schedule.remove')}</span>
                                </div>
                              </div>
                            );
@@ -756,7 +756,7 @@ export default function ScheduleTab() {
                              onClick={() => addException(day.isoDate, time, 'Unavailable')}>
                           <span className="group-hover:opacity-0 transition-opacity duration-200">—</span>
                           <div className="absolute inset-0 bg-neutral-200 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                            <span className="text-[9px] font-bold text-neutral-600 px-1 text-center leading-tight">Mark<br/>Unavailable</span>
+                            <span className="text-[9px] font-bold text-neutral-600 px-1 text-center leading-tight whitespace-pre-line">{t('schedule.markUnavailable')}</span>
                           </div>
                         </div>
                       );
@@ -788,24 +788,24 @@ export default function ScheduleTab() {
             {activePending.apt && (
               <div className="bg-surface-container/20 border border-outline-variant/30 rounded-xl p-4 mb-6 text-left space-y-3 shadow-sm">
                 <div className="flex justify-between items-center border-b border-outline-variant/20 pb-2">
-                  <span className="text-xs font-semibold text-text-light">Name:</span>
+                  <span className="text-xs font-semibold text-text-light">{t('booking.fullName')}:</span>
                   <span className="text-sm font-bold text-text-main">{activePending.apt.clientName || 'N/A'}</span>
                 </div>
                 <div className="flex justify-between items-center border-b border-outline-variant/20 pb-2">
-                  <span className="text-xs font-semibold text-text-light">Email:</span>
+                  <span className="text-xs font-semibold text-text-light">{t('auth.email')}:</span>
                   <span className="text-xs font-semibold text-text-main">{activePending.apt.email || 'N/A'}</span>
                 </div>
                 <div className="flex justify-between items-center border-b border-outline-variant/20 pb-2">
-                  <span className="text-xs font-semibold text-text-light">Phone:</span>
+                  <span className="text-xs font-semibold text-text-light">{t('auth.phoneNumber')}:</span>
                   <span className="text-xs font-semibold text-text-main">{activePending.apt.phone || 'N/A'}</span>
                 </div>
                 <div className="flex justify-between items-center border-b border-outline-variant/20 pb-2">
-                  <span className="text-xs font-semibold text-text-light">Payment:</span>
+                  <span className="text-xs font-semibold text-text-light">{t('payment.cash')}:</span>
                   <span className="text-xs font-semibold text-text-main">{activePending.apt.paymentMethod || 'N/A'}</span>
                 </div>
                 {activePending.apt.description && (
                   <div className="pt-1">
-                    <span className="text-xs font-semibold text-text-light block mb-1">Description:</span>
+                    <span className="text-xs font-semibold text-text-light block mb-1">{t('booking.notes')}:</span>
                     <p className="text-xs text-text-main leading-relaxed bg-white p-2 rounded-lg border border-outline-variant/20">
                       {activePending.apt.description}
                     </p>
@@ -826,7 +826,7 @@ export default function ScheduleTab() {
               <div className="pt-2 mt-2 border-t border-outline-variant/20 flex flex-col gap-3">
                 <input
                   type="text"
-                  placeholder="Reason for declining (optional)"
+                  placeholder={t('schedule.declineReason')}
                   value={declineReason}
                   onChange={(e) => setDeclineReason(e.target.value)}
                   className="w-full bg-white border border-outline-variant/30 text-text-main rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400 transition-all placeholder:text-text-muted/50"
@@ -858,21 +858,21 @@ export default function ScheduleTab() {
               <div className="w-14 h-14 rounded-full flex items-center justify-center mb-5" style={{ background: 'rgba(186, 26, 26, 0.1)' }}>
                 <AlertTriangle className="w-7 h-7" style={{ color: '#BA1A1A' }} />
               </div>
-              <h3 className="f-heading font-bold text-lg mb-3 text-text-main">Are you sure?</h3>
+              <h3 className="f-heading font-bold text-lg mb-3 text-text-main">{t('common.areYouSure')}</h3>
               <p className="text-sm text-text-muted mb-6 leading-relaxed">{confirmAction.message}</p>
               <div className="flex gap-3 w-full">
                 <button
                   onClick={() => setConfirmAction(null)}
                   className="btn-outline flex-1 py-3 text-sm"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   onClick={confirmAction.onConfirm}
                   className="flex-1 py-3 text-sm font-semibold rounded-xl text-white cursor-pointer transition-all duration-200"
                   style={{ background: '#BA1A1A' }}
                 >
-                  Confirm
+                  {t('profile.confirm')}
                 </button>
               </div>
             </div>

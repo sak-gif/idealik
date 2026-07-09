@@ -5,9 +5,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import LanguageSwitcher from './LanguageSwitcher';
+import { useLanguage } from '@/context/LanguageContext';
 import { LogOut, Menu, X } from 'lucide-react';
 
 export default function Header() {
+  const { t } = useLanguage();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
@@ -76,11 +78,11 @@ export default function Header() {
         {/* Center: Desktop Nav — only on homepage */}
         {isHomePage && (
           <nav className="hidden lg:flex items-center gap-8 flex-1 justify-center">
-            <Link href="/#home" className={`text-[15px] font-medium transition-colors ${activeSection === 'home' ? 'text-primary' : 'text-text-light hover:text-primary'}`}>home</Link>
-            <Link href="/#about" className={`text-[15px] font-medium transition-colors ${activeSection === 'about' ? 'text-primary' : 'text-text-light hover:text-primary'}`}>about us</Link>
-            <Link href="/#terms" className={`text-[15px] font-medium transition-colors ${activeSection === 'terms' ? 'text-primary' : 'text-text-light hover:text-primary'}`}>terms & conditions</Link>
-            <Link href="/#privacy" className={`text-[15px] font-medium transition-colors ${activeSection === 'privacy' ? 'text-primary' : 'text-text-light hover:text-primary'}`}>privacy & policy</Link>
-            <Link href="/#contact" className={`text-[15px] font-medium transition-colors ${activeSection === 'contact' ? 'text-primary' : 'text-text-light hover:text-primary'}`}>contact us</Link>
+            <Link href="/#home" className={`text-[15px] font-medium transition-colors ${activeSection === 'home' ? 'text-primary' : 'text-text-light hover:text-primary'}`}>{t('nav.home')}</Link>
+            <Link href="/#about" className={`text-[15px] font-medium transition-colors ${activeSection === 'about' ? 'text-primary' : 'text-text-light hover:text-primary'}`}>{t('nav.aboutUs')}</Link>
+            <Link href="/#terms" className={`text-[15px] font-medium transition-colors ${activeSection === 'terms' ? 'text-primary' : 'text-text-light hover:text-primary'}`}>{t('nav.termsConditions')}</Link>
+            <Link href="/#privacy" className={`text-[15px] font-medium transition-colors ${activeSection === 'privacy' ? 'text-primary' : 'text-text-light hover:text-primary'}`}>{t('nav.privacyPolicy2')}</Link>
+            <Link href="/#contact" className={`text-[15px] font-medium transition-colors ${activeSection === 'contact' ? 'text-primary' : 'text-text-light hover:text-primary'}`}>{t('nav.contactUs')}</Link>
           </nav>
         )}
 
@@ -105,7 +107,7 @@ export default function Header() {
               }}
             >
               <LogOut className="w-4 h-4" />
-              Log Out
+              {t('nav.logOut')}
             </button>
           )}
           
@@ -126,11 +128,11 @@ export default function Header() {
       {/* Mobile Menu Dropdown — only on homepage */}
       {isHomePage && isMobileMenuOpen && (
         <div className="lg:hidden absolute top-full left-0 w-full bg-white border-t border-outline-variant/20 shadow-xl py-4 px-6 flex flex-col gap-4 animate-in slide-in-from-top-2">
-          <Link href="/#home" onClick={() => setIsMobileMenuOpen(false)} className={`text-base font-medium py-2 border-b border-outline-variant/10 ${activeSection === 'home' ? 'text-primary' : 'text-text-main hover:text-primary'}`}>home</Link>
-          <Link href="/#about" onClick={() => setIsMobileMenuOpen(false)} className={`text-base font-medium py-2 border-b border-outline-variant/10 ${activeSection === 'about' ? 'text-primary' : 'text-text-main hover:text-primary'}`}>about us</Link>
-          <Link href="/#terms" onClick={() => setIsMobileMenuOpen(false)} className={`text-base font-medium py-2 border-b border-outline-variant/10 ${activeSection === 'terms' ? 'text-primary' : 'text-text-main hover:text-primary'}`}>terms & conditions</Link>
-          <Link href="/#privacy" onClick={() => setIsMobileMenuOpen(false)} className={`text-base font-medium py-2 border-b border-outline-variant/10 ${activeSection === 'privacy' ? 'text-primary' : 'text-text-main hover:text-primary'}`}>privacy & policy</Link>
-          <Link href="/#contact" onClick={() => setIsMobileMenuOpen(false)} className={`text-base font-medium py-2 border-b border-outline-variant/10 ${activeSection === 'contact' ? 'text-primary' : 'text-text-main hover:text-primary'}`}>contact us</Link>
+          <Link href="/#home" onClick={() => setIsMobileMenuOpen(false)} className={`text-base font-medium py-2 border-b border-outline-variant/10 ${activeSection === 'home' ? 'text-primary' : 'text-text-main hover:text-primary'}`}>{t('nav.home')}</Link>
+          <Link href="/#about" onClick={() => setIsMobileMenuOpen(false)} className={`text-base font-medium py-2 border-b border-outline-variant/10 ${activeSection === 'about' ? 'text-primary' : 'text-text-main hover:text-primary'}`}>{t('nav.aboutUs')}</Link>
+          <Link href="/#terms" onClick={() => setIsMobileMenuOpen(false)} className={`text-base font-medium py-2 border-b border-outline-variant/10 ${activeSection === 'terms' ? 'text-primary' : 'text-text-main hover:text-primary'}`}>{t('nav.termsConditions')}</Link>
+          <Link href="/#privacy" onClick={() => setIsMobileMenuOpen(false)} className={`text-base font-medium py-2 border-b border-outline-variant/10 ${activeSection === 'privacy' ? 'text-primary' : 'text-text-main hover:text-primary'}`}>{t('nav.privacyPolicy2')}</Link>
+          <Link href="/#contact" onClick={() => setIsMobileMenuOpen(false)} className={`text-base font-medium py-2 border-b border-outline-variant/10 ${activeSection === 'contact' ? 'text-primary' : 'text-text-main hover:text-primary'}`}>{t('nav.contactUs')}</Link>
           {isLoggedIn && !isCustomerPage && (
             <div className="pt-4 border-t border-outline-variant/10">
               <button
@@ -138,7 +140,7 @@ export default function Header() {
                 className="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl text-red-500 bg-red-50"
               >
                 <LogOut className="w-4 h-4" />
-                Log Out
+                {t('nav.logOut')}
               </button>
             </div>
           )}

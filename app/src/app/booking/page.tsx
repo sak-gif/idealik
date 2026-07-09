@@ -1,11 +1,16 @@
+'use client';
+
 import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SparkleDecor from '@/components/SparkleDecor';
+import { useLanguage } from '@/context/LanguageContext';
 import { AlertCircle, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 export default function BookingNotFound() {
+  const { t } = useLanguage();
+
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#F9F9F9' }}>
       <Header />
@@ -18,14 +23,14 @@ export default function BookingNotFound() {
             </div>
           </div>
           <h1 className="f-heading font-bold text-center mb-2" style={{ fontSize: 26, color: '#1A1C1C' }}>
-            Provider Not Found
+            {t('booking.notFoundTitle')}
           </h1>
           <p className="f-heading text-center mb-10" style={{ fontSize: 14, color: '#7E7669' }}>
-            The booking profile you are looking for does not exist or requires a direct invite link. Please check the URL or scan the provider's QR code.
+            {t('booking.notFoundDesc')}
           </p>
           <Link href="/" className="btn-gold py-4 text-base w-full flex items-center justify-center gap-2">
             <ArrowLeft className="w-4 h-4" />
-            Return Home
+            {t('booking.returnHome')}
           </Link>
         </div>
       </main>

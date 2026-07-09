@@ -257,7 +257,7 @@ export default function ServicesTab() {
 
   const handleDeleteService = (serviceId: number) => {
     setConfirmAction({
-      message: 'Are you sure you want to delete this service? This action cannot be undone.',
+      message: t('services.deleteConfirm'),
       onConfirm: async () => {
         const token = localStorage.getItem('idealik_token');
         if (!token) return;
@@ -334,7 +334,7 @@ export default function ServicesTab() {
         )}
 
         <div className="mb-6 text-left">
-          <label className="block text-base f-heading font-semibold mb-3" style={{ color: '#1A1C1C' }}>Email Address</label>
+          <label className="block text-base f-heading font-semibold mb-3" style={{ color: '#1A1C1C' }}>{t('profile.emailAddress')}</label>
           <input
             type="email"
             value={email}
@@ -344,7 +344,7 @@ export default function ServicesTab() {
         </div>
 
         <div className="mb-6 text-left">
-          <label className="block text-base f-heading font-semibold mb-3" style={{ color: '#1A1C1C' }}>Business Name</label>
+          <label className="block text-base f-heading font-semibold mb-3" style={{ color: '#1A1C1C' }}>{t('profile.businessName')}</label>
           <input
             type="text"
             value={businessName}
@@ -354,7 +354,7 @@ export default function ServicesTab() {
         </div>
 
         <div className="mb-6 text-left">
-          <label className="block text-base f-heading font-semibold mb-3" style={{ color: '#1A1C1C' }}>Phone Number</label>
+          <label className="block text-base f-heading font-semibold mb-3" style={{ color: '#1A1C1C' }}>{t('profile.phoneNumber')}</label>
           <input
             type="tel"
             value={phoneNumber}
@@ -380,7 +380,7 @@ export default function ServicesTab() {
           id="save-profile-btn"
           disabled={saveLoading}
         >
-          {saveLoading ? 'Processing...' : t('profile.saveChanges')}
+          {saveLoading ? t('profile.processing') : t('profile.saveChanges')}
         </button>
       </div>
 
@@ -401,7 +401,7 @@ export default function ServicesTab() {
         <div className="space-y-5">
           {services.length === 0 ? (
             <div className="text-center py-10 text-text-light">
-              No services added yet. Click "Add New" to get started.
+              {t('services.noServices')}
             </div>
           ) : (
             services.map((svc) => (
@@ -515,7 +515,7 @@ export default function ServicesTab() {
               <X className="w-5 h-5" />
             </button>
             <h3 className="f-heading font-bold text-xl mb-6 text-text-main text-center">
-              {editingServiceId ? 'Edit Service' : t('services.addNew')}
+              {editingServiceId ? t('services.editService') : t('services.addNew')}
             </h3>
 
             {modalError && (
@@ -526,7 +526,7 @@ export default function ServicesTab() {
 
             <form onSubmit={handleSubmitService} className="space-y-4 text-left">
               <div>
-                <label className="block text-xs f-heading font-semibold mb-2 text-text-main">Service Title</label>
+                <label className="block text-xs f-heading font-semibold mb-2 text-text-main">{t('services.serviceTitle')}</label>
                 <input
                   type="text"
                   value={newTitle}
@@ -537,7 +537,7 @@ export default function ServicesTab() {
               </div>
 
               <div>
-                <label className="block text-xs f-heading font-semibold mb-2 text-text-main">Description</label>
+                <label className="block text-xs f-heading font-semibold mb-2 text-text-main">{t('services.serviceDesc')}</label>
                 <textarea
                   value={newDesc}
                   onChange={(e) => setNewDesc(e.target.value)}
@@ -563,7 +563,7 @@ export default function ServicesTab() {
               </div>
 
               <div>
-                <label className="block text-xs f-heading font-semibold mb-2 text-text-main">Service Image (Optional)</label>
+                <label className="block text-xs f-heading font-semibold mb-2 text-text-main">{t('services.serviceImage')}</label>
                 <input
                   type="file"
                   accept="image/*"
@@ -590,14 +590,14 @@ export default function ServicesTab() {
                   onClick={() => { setShowAddModal(false); resetModal(); }}
                   className="btn-outline flex-1 py-3 text-xs"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
                   className="btn-gold flex-1 py-3 text-xs"
                   disabled={modalLoading}
                 >
-                  {modalLoading ? 'Saving...' : (editingServiceId ? 'Save Changes' : 'Add Service')}
+                  {modalLoading ? t('services.saving') : (editingServiceId ? t('services.saveChanges') : t('services.addService'))}
                 </button>
               </div>
             </form>
@@ -615,10 +615,10 @@ export default function ServicesTab() {
               <X className="w-5 h-5" />
             </button>
             <h3 className="f-heading font-bold text-xl mb-4 text-text-main text-center">
-              Confirm Password
+              {t('profile.confirmPassword')}
             </h3>
             <p className="text-sm text-text-muted text-center mb-6">
-              Please enter your password to authorize these profile changes.
+              {t('profile.confirmPasswordDesc')}
             </p>
 
             {passwordError && (
@@ -629,13 +629,13 @@ export default function ServicesTab() {
 
             <div className="space-y-4 text-left">
               <div>
-                <label className="block text-xs f-heading font-semibold mb-2 text-text-main">Password</label>
+                <label className="block text-xs f-heading font-semibold mb-2 text-text-main">{t('auth.password')}</label>
                 <input
                   type="password"
                   value={passwordConfirm}
                   onChange={(e) => setPasswordConfirm(e.target.value)}
                   className="input-field input-no-icon text-sm h-[46px]"
-                  placeholder="Enter your password"
+                  placeholder={t('auth.password')}
                 />
               </div>
 
@@ -644,14 +644,14 @@ export default function ServicesTab() {
                   onClick={() => setShowPasswordModal(false)}
                   className="btn-outline flex-1 py-3 text-xs"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   onClick={handleConfirmSaveProfile}
                   className="btn-gold flex-1 py-3 text-xs"
                   disabled={saveLoading}
                 >
-                  {saveLoading ? 'Verifying...' : 'Confirm'}
+                  {saveLoading ? t('profile.verifying') : t('profile.confirm')}
                 </button>
               </div>
             </div>
@@ -667,21 +667,21 @@ export default function ServicesTab() {
               <div className="w-14 h-14 rounded-full flex items-center justify-center mb-5" style={{ background: 'rgba(186, 26, 26, 0.1)' }}>
                 <AlertTriangle className="w-7 h-7" style={{ color: '#BA1A1A' }} />
               </div>
-              <h3 className="f-heading font-bold text-lg mb-3 text-text-main">Are you sure?</h3>
+              <h3 className="f-heading font-bold text-lg mb-3 text-text-main">{t('common.areYouSure')}</h3>
               <p className="text-sm text-text-muted mb-6 leading-relaxed">{confirmAction.message}</p>
               <div className="flex gap-3 w-full">
                 <button
                   onClick={() => setConfirmAction(null)}
                   className="btn-outline flex-1 py-3 text-sm"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   onClick={confirmAction.onConfirm}
                   className="flex-1 py-3 text-sm font-semibold rounded-xl text-white cursor-pointer transition-all duration-200"
                   style={{ background: '#BA1A1A' }}
                 >
-                  Delete
+                  {t('services.delete')}
                 </button>
               </div>
             </div>

@@ -432,7 +432,7 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
                 </div>
                 <div className="flex items-center gap-1.5 md:gap-2">
                   <div className="px-1.5 md:px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-600 text-[9px] md:text-[10px] font-black uppercase tracking-wider select-none">
-                    Pending
+                    {loc.pending}
                   </div>
                   <span className="text-[10px] md:text-xs f-heading font-bold text-text-muted">{loc.pending}</span>
                 </div>
@@ -455,7 +455,7 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
                   {/* Grid Headers */}
                   <div className="grid mobile-dynamic-grid md:grid-cols-8 gap-1.5 md:gap-2.5 mb-3 md:mb-4">
                     <div className="text-center font-bold text-[10px] md:text-xs uppercase text-text-light flex items-center justify-center">
-                      Time
+                      {t('schedule.date')}
                     </div>
                     {daysOfWeek.map((day, dayIdx) => (
                       <div
@@ -513,7 +513,7 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
                                   </button>
                                 ) : slot.status === 'booked' ? (
                                   <div className="w-full h-full min-h-[38px] rounded-lg bg-surface-container/70 border border-outline-variant/10 flex items-center justify-center text-text-light/40 text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase select-none text-center px-0.5 leading-tight break-all md:break-words">
-                                    Booked
+                                    {loc.booked}
                                   </div>
                                 ) : slot.status === 'unavailable' ? (
                                   <div className="w-full h-full min-h-[38px] rounded-lg bg-neutral-200/80 border border-neutral-300/30 flex items-center justify-center text-neutral-400 text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase select-none px-0.5 text-center leading-tight">
@@ -522,7 +522,7 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
                                   </div>
                                 ) : (
                                   <div className="w-full h-full min-h-[38px] rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-600 text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase select-none text-center px-0.5 leading-tight break-all md:break-words">
-                                    Pending
+                                    {loc.pending}
                                   </div>
                                 )
                               ) : (
@@ -651,7 +651,7 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
                     className="btn-gold w-full text-sm py-4 shadow-md flex items-center justify-center gap-2"
                   >
                     {isSendingOtp ? (
-                      <span className="flex items-center gap-2"><Clock className="w-4 h-4 animate-spin" /> Sending SMS...</span>
+                      <span className="flex items-center gap-2"><Clock className="w-4 h-4 animate-spin" /> {t('booking.sendingSms')}</span>
                     ) : (
                       <>
                         <Clock className="w-4 h-4" />
@@ -665,10 +665,10 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
                       disabled
                       className="w-full text-sm py-4 rounded-xl font-bold bg-neutral-100 text-neutral-400 cursor-not-allowed border border-neutral-200 flex items-center justify-center gap-2"
                     >
-                      Card Payment
+                      {t('booking.cardPayment')}
                     </button>
                     <div className="absolute -top-3 right-2 px-2 py-0.5 bg-primary/10 text-primary-dark text-[10px] font-bold rounded-md border border-primary/20">
-                      Will be added soon
+                      {t('booking.cardComingSoon')}
                     </div>
                   </div>
                 </div>
@@ -680,14 +680,14 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
                   className="flex items-center gap-2 text-text-light hover:text-text-main transition-colors mb-6 text-sm font-semibold"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  Back
+                  {t('common.back')}
                 </button>
                 <div className="text-center mb-6">
                   <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center mb-4 border border-primary/30 mx-auto">
                     <Shield className="w-7 h-7 text-primary-light" />
                   </div>
-                  <h3 className="font-extrabold text-xl text-text-main mb-2">Verify Your Phone</h3>
-                  <p className="text-sm text-text-muted">Enter the 6-digit code sent to <br/><strong className="text-text-main">{formData.phone}</strong></p>
+                  <h3 className="font-extrabold text-xl text-text-main mb-2">{t('booking.verifyYourPhone')}</h3>
+                  <p className="text-sm text-text-muted">{t('booking.enterCode')} <br/><strong className="text-text-main">{formData.phone}</strong></p>
                 </div>
                 
                 <div className="flex justify-center gap-2 mb-8">
@@ -714,9 +714,9 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
                     className="btn-gold w-full text-sm py-4 shadow-md flex items-center justify-center gap-2"
                   >
                     {isVerifyingOtp ? (
-                      <span className="flex items-center gap-2"><Clock className="w-4 h-4 animate-spin" /> Verifying...</span>
+                      <span className="flex items-center gap-2"><Clock className="w-4 h-4 animate-spin" /> {t('auth.verifying')}</span>
                     ) : (
-                      'Verify & Confirm Booking'
+                      t('booking.verifyConfirm')
                     )}
                   </button>
                   <button
@@ -724,7 +724,7 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
                     disabled={isSendingOtp}
                     className="w-full text-sm py-3 text-text-light hover:text-primary transition-colors font-semibold"
                   >
-                    {isSendingOtp ? 'Sending...' : "Didn't receive a code? Resend"}
+                    {isSendingOtp ? t('booking.sendingSms') : t('booking.didntReceive')}
                   </button>
                 </div>
               </div>
@@ -742,11 +742,11 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
             </div>
             
             <h2 className="f-heading font-extrabold text-2xl mb-4 text-text-main">
-              Booking Pending!
+              {t('booking.bookingPending')}
             </h2>
             
             <p className="text-sm text-text-light mb-8 leading-relaxed">
-              Your booking is pending now. We will inform you if your booking is accepted. If you have any questions, contact us on <span className="font-bold text-text-main">{providerProfile?.phoneNumber || providerProfile?.phone || ''}</span>.
+              {t('booking.bookingPendingDesc')} <span className="font-bold text-text-main">{providerProfile?.phoneNumber || providerProfile?.phone || ''}</span>.
             </p>
 
             <button 
@@ -757,7 +757,7 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
               }} 
               className="btn-gold w-full py-4 text-base shadow-md"
             >
-              OK
+              {t('common.ok')}
             </button>
           </div>
         </div>
