@@ -83,13 +83,24 @@ public class BookingService {
         Booking savedBooking = bookingRepository.save(booking);
 
         // Send SMS notification to the customer
-        String smsMessage = String.format(
-            "Hello %s! Your appointment with %s on %s at %s has been successfully booked. Thank you for using iDAELİK!",
-            savedBooking.getClientName(),
-            practitioner.getBusinessName() != null ? practitioner.getBusinessName() : practitioner.getName(),
-            savedBooking.getSlotDate(),
-            savedBooking.getSlotTime()
-        );
+        String smsMessage;
+        if ("pending".equals(savedBooking.getBookingStatus())) {
+            smsMessage = String.format(
+                "Hello %s! Your appointment request with %s on %s at %s has been received and is currently PENDING approval. We will notify you once it is confirmed.",
+                savedBooking.getClientName(),
+                practitioner.getBusinessName() != null ? practitioner.getBusinessName() : practitioner.getName(),
+                savedBooking.getSlotDate(),
+                savedBooking.getSlotTime()
+            );
+        } else {
+            smsMessage = String.format(
+                "Hello %s! Your appointment with %s on %s at %s has been successfully CONFIRMED. Thank you for using iDAELİK!",
+                savedBooking.getClientName(),
+                practitioner.getBusinessName() != null ? practitioner.getBusinessName() : practitioner.getName(),
+                savedBooking.getSlotDate(),
+                savedBooking.getSlotTime()
+            );
+        }
         smsNotificationService.sendSms(savedBooking.getClientPhone(), smsMessage);
 
         return savedBooking;

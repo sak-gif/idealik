@@ -32,6 +32,9 @@ This guide explains how to deploy the IDEALIK platform (Next.js frontend + Sprin
 | `SPRING_DATASOURCE_USERNAME` | *(Your Aiven username)* |
 | `SPRING_DATASOURCE_PASSWORD` | *(Your Aiven password)* |
 | `FRONTEND_URL` | *(leave empty for now — you'll fill this after creating the frontend)* |
+| `TWILIO_ACCOUNT_SID` | *(Your Twilio Account SID)* |
+| `TWILIO_AUTH_TOKEN` | *(Your Twilio Auth Token)* |
+| `TWILIO_PHONE_NUMBER` | *(Your Twilio Phone Number)* |
 
 6. Click **"Create Web Service"**.
 7. Wait for the build to finish. Once live, copy the backend URL (e.g., `https://idealik-backend-xxxx.onrender.com`).
