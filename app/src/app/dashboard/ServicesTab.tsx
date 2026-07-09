@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useLanguage } from '@/context/LanguageContext';
+import { formatPrice } from '@/lib/translate';
 import { Settings, Trash2, Plus, QrCode, X, Eye, CheckCircle, AlertTriangle, User } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import GlobalLoader from '@/components/GlobalLoader';
@@ -426,7 +427,7 @@ export default function ServicesTab() {
                       className="px-3 py-1 rounded-md text-xs f-heading font-bold"
                       style={{ border: '1px solid #CFC5B6', color: '#1A1C1C', background: '#fff' }}
                     >
-                      {svc.price ? (language === 'TR' ? `${svc.price} ₺` : language === 'AR' ? `${svc.price} ر.س` : `$${svc.price}`) : 'Price not set'}
+                      {svc.price ? formatPrice(svc.price, language) : t('services.price') + ' —'}
                     </span>
                   </div>
                 </div>
@@ -549,7 +550,7 @@ export default function ServicesTab() {
 
               <div>
                 <label className="block text-xs f-heading font-semibold mb-2 text-text-main">
-                  {t('services.price')} ({language === 'TR' ? '₺' : language === 'AR' ? 'ر.س' : '$'})
+                  {t('services.price')} ({t('services.currencySymbol')})
                 </label>
                 <input
                   type="number"
