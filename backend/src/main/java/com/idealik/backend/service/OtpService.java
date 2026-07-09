@@ -14,6 +14,11 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
 
+import com.twilio.Twilio;
+import com.twilio.rest.verify.v2.service.Verification;
+import com.twilio.rest.verify.v2.service.VerificationCheck;
+import jakarta.annotation.PostConstruct;
+
 @Service
 public class OtpService {
 
@@ -28,6 +33,30 @@ public class OtpService {
 
     @Value("${spring.mail.username}")
     private String senderEmail;
+
+    @Value("${twilio.account.sid:}")
+    private String twilioAccountSid;
+
+    @Value("${twilio.auth.token:}")
+    private String twilioAuthToken;
+
+    @Value("${twilio.verify.service.sid:VAb098f0d3a3f352cec33aa7b871563b90}")
+    private String twilioVerifyServiceSid;
+
+    private boolean isTwilioVerifyConfigured = false;
+
+    @PostConstruct
+    public void initTwilio() {
+        if (twilioAccountSid != null && !twilioAccountSid.isEmpty() && 
+            twilioAuthToken != null && !twilioAuthToken.isEmpty()) {
+            try {
+                Twilio.init(twilioAccountSid, twilioAuthToken);
+                isTwilioVerifyConfigured = true;
+            } catch (Exception e) {
+                System.err.println("Failed to initialize Twilio Verify: " + e.getMessage());
+            }
+        }
+    }
 
     @Transactional
     public void generateAndSendOtp(String email) {
@@ -98,25 +127,56 @@ public class OtpService {
 
     @Transactional
     public void generateAndSendPhoneOtp(String phone) {
-        // Clear any existing OTPs for this phone
-        otpRepository.deleteByEmail(phone);
+        if (isTwilioVerifyConfigured) {
+            try {
+                Verification verification = Verification.creator(
+                        twilioVerifyServiceSid,
+                        phone,
+                        "sms")
+                    .create();
+                System.out.println("Sent Twilio Verify SMS to " + phone + ". Status: " + verification.getStatus());
+                return;
+            } catch (Exception e) {
+                System.err.println("Twilio Verify failed for " + phone + ": " + e.getMessage());
+                // Fallback to old method below if Twilio fails
+            }
+        }
 
-        // Generate a 6-digit OTP
+        // Fallback: Custom OTP generation
+        otpRepository.deleteByEmail(phone);
         String otp = String.format("%06d", new Random().nextInt(999999));
-        
-        // Save to database
         OtpEntity otpEntity = new OtpEntity(phone, otp, LocalDateTime.now().plusMinutes(10));
         otpRepository.save(otpEntity);
 
-        // Send SMS
         String smsMessage = "Your iDAELİK verification code is: " + otp + ". It is valid for 10 minutes.";
         smsNotificationService.sendSms(phone, smsMessage);
         
-        System.out.println("Generated Phone OTP for " + phone + ": " + otp);
+        System.out.println("Generated Fallback Phone OTP for " + phone + ": " + otp);
     }
 
     @Transactional
     public boolean verifyOtp(String identifier, String otp) {
+        // If it's a phone number and Twilio Verify is configured, try Twilio Verify first
+        if (identifier != null && identifier.startsWith("+") && isTwilioVerifyConfigured) {
+            try {
+                VerificationCheck verificationCheck = VerificationCheck.creator(
+                        twilioVerifyServiceSid)
+                        .setTo(identifier)
+                        .setCode(otp)
+                    .create();
+                
+                if ("approved".equals(verificationCheck.getStatus())) {
+                    System.out.println("Twilio Verify approved for " + identifier);
+                    return true;
+                } else {
+                    System.out.println("Twilio Verify failed (status: " + verificationCheck.getStatus() + ") for " + identifier);
+                }
+            } catch (Exception e) {
+                System.err.println("Twilio Verify Check Exception for " + identifier + ": " + e.getMessage());
+            }
+        }
+
+        // Fallback: check custom database OTP
         Optional<OtpEntity> otpOptional = otpRepository.findByEmailAndOtp(identifier, otp);
         if (otpOptional.isPresent()) {
             OtpEntity otpEntity = otpOptional.get();
