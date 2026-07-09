@@ -24,7 +24,6 @@ import {
   Mail,
   Phone,
   FileText,
-  CheckCircle,
   AlertTriangle
 } from 'lucide-react';
 
