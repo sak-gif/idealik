@@ -7,7 +7,6 @@ import Footer from '@/components/Footer';
 import SparkleDecor from '@/components/SparkleDecor';
 import { useLanguage } from '@/context/LanguageContext';
 import { Building2, Mail, Phone, Lock, Eye, EyeOff, ShieldCheck, ArrowLeft, Loader2 } from 'lucide-react';
-import { setupRecaptcha, sendSmsOtp, verifySmsOtp, ConfirmationResult } from '@/lib/firebase';
 
 export default function RegisterPage() {
   const { t } = useLanguage();
@@ -26,7 +25,6 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
   React.useEffect(() => {
     const pendingData = sessionStorage.getItem('idealik_pending_registration');
@@ -89,23 +87,21 @@ export default function RegisterPage() {
     setLoading(true);
     setError(null);
     try {
-      if (!(window as any).recaptchaVerifier) {
-        setupRecaptcha('create-account-btn');
+      const res = await fetch('/api/auth/send-phone-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: phoneNumber }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || 'Failed to send SMS.');
       }
-
-      const verifier = (window as any).recaptchaVerifier;
-      const result = await sendSmsOtp(phoneNumber, verifier);
-      setConfirmationResult(result);
       
       setSuccessMsg('SMS verification code sent!');
       setStep('otp');
     } catch (err: any) {
       console.error(err);
       setError(err.message || 'Failed to send SMS. Please check your phone number.');
-      if ((window as any).recaptchaVerifier) {
-        (window as any).recaptchaVerifier.clear();
-        (window as any).recaptchaVerifier = null;
-      }
     } finally {
       setLoading(false);
     }
@@ -124,13 +120,14 @@ export default function RegisterPage() {
     setSuccessMsg(null);
     
     try {
-      // 1. Verify SMS OTP via Firebase
-      if (!confirmationResult) {
-        throw new Error('No SMS session found. Please try resending the code.');
-      }
+      // 1. Verify SMS OTP via Backend
+      const verifyRes = await fetch('/api/auth/verify-phone-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: phoneNumber, otp: code }),
+      });
       
-      const isValid = await verifySmsOtp(confirmationResult, code);
-      if (!isValid) {
+      if (!verifyRes.ok) {
         throw new Error('Invalid or expired SMS code.');
       }
 

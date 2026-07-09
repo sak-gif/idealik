@@ -52,6 +52,35 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/send-phone-otp")
+    public ResponseEntity<?> sendPhoneOtp(@RequestBody Map<String, String> request) {
+        String phone = request.get("phone");
+        if (phone == null || phone.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Phone number is required"));
+        }
+        try {
+            otpService.generateAndSendPhoneOtp(phone);
+            return ResponseEntity.ok(Map.of("message", "SMS OTP sent successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("message", "Failed to send SMS OTP: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/verify-phone-otp")
+    public ResponseEntity<?> verifyPhoneOtp(@RequestBody Map<String, String> request) {
+        String phone = request.get("phone");
+        String otp = request.get("otp");
+        if (phone == null || otp == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Phone number and OTP are required"));
+        }
+        boolean isValid = otpService.verifyOtp(phone, otp);
+        if (isValid) {
+            return ResponseEntity.ok(Map.of("message", "Phone OTP verified successfully"));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Invalid or expired OTP"));
+        }
+    }
+
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
         String email = request.get("email");

@@ -7,7 +7,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Phone, ArrowRight, ShieldCheck, ArrowLeft, Loader2 } from 'lucide-react';
 import SparkleDecor from '@/components/SparkleDecor';
 import GlobalLoader from '@/components/GlobalLoader';
-import { setupRecaptcha, sendSmsOtp, verifySmsOtp, ConfirmationResult } from '@/lib/firebase';
 
 function VerifyEmailContent() {
   const router = useRouter();
@@ -23,7 +22,6 @@ function VerifyEmailContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
-  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
   const getPasswordStrength = (pw: string) => {
     if (!pw) return null;
@@ -56,23 +54,21 @@ function VerifyEmailContent() {
     setError('');
     setSuccessMsg('');
     try {
-      if (!(window as any).recaptchaVerifier) {
-        setupRecaptcha('send-otp-btn');
+      const res = await fetch('/api/auth/send-phone-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: targetPhone })
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || 'Failed to send verification code.');
       }
-
-      const verifier = (window as any).recaptchaVerifier;
-      const result = await sendSmsOtp(targetPhone, verifier);
-      setConfirmationResult(result);
       
       setSuccessMsg('Verification code sent! Please check your phone.');
       setStep('verify');
     } catch (err: any) {
       console.error('SMS send error:', err);
       setError(err.message || 'Failed to send verification code. Check phone number format.');
-      if ((window as any).recaptchaVerifier) {
-        (window as any).recaptchaVerifier.clear();
-        (window as any).recaptchaVerifier = null;
-      }
     } finally {
       setLoading(false);
     }
@@ -102,12 +98,13 @@ function VerifyEmailContent() {
     setLoading(true);
     setError('');
     try {
-      if (!confirmationResult) {
-        throw new Error('No SMS session found. Please try resending the code.');
-      }
+      const verifyRes = await fetch('/api/auth/verify-phone-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: phoneNumber, otp: code })
+      });
       
-      const isValid = await verifySmsOtp(confirmationResult, code);
-      if (!isValid) {
+      if (!verifyRes.ok) {
         throw new Error('Invalid or expired SMS code.');
       }
 

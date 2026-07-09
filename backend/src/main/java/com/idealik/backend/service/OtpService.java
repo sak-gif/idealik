@@ -23,6 +23,9 @@ public class OtpService {
     @Autowired
     private JavaMailSender mailSender;
 
+    @Autowired
+    private SmsNotificationService smsNotificationService;
+
     @Value("${spring.mail.username}")
     private String senderEmail;
 
@@ -88,24 +91,42 @@ public class OtpService {
             helper.setText(htmlMsg, true);
             mailSender.send(message);
         } catch (Exception e) {
-            // Log the OTP and error instead of throwing to prevent transaction rollback
             System.err.println("Failed to send HTML email. Test Mode OTP for " + email + ": " + otp);
             e.printStackTrace();
         }
     }
 
     @Transactional
-    public boolean verifyOtp(String email, String otp) {
-        Optional<OtpEntity> otpOptional = otpRepository.findByEmailAndOtp(email, otp);
+    public void generateAndSendPhoneOtp(String phone) {
+        // Clear any existing OTPs for this phone
+        otpRepository.deleteByEmail(phone);
+
+        // Generate a 6-digit OTP
+        String otp = String.format("%06d", new Random().nextInt(999999));
+        
+        // Save to database
+        OtpEntity otpEntity = new OtpEntity(phone, otp, LocalDateTime.now().plusMinutes(10));
+        otpRepository.save(otpEntity);
+
+        // Send SMS
+        String smsMessage = "Your iDAELİK verification code is: " + otp + ". It is valid for 10 minutes.";
+        smsNotificationService.sendSms(phone, smsMessage);
+        
+        System.out.println("Generated Phone OTP for " + phone + ": " + otp);
+    }
+
+    @Transactional
+    public boolean verifyOtp(String identifier, String otp) {
+        Optional<OtpEntity> otpOptional = otpRepository.findByEmailAndOtp(identifier, otp);
         if (otpOptional.isPresent()) {
             OtpEntity otpEntity = otpOptional.get();
             if (otpEntity.getExpiryTime().isAfter(LocalDateTime.now())) {
                 // OTP is valid and not expired, delete it so it can't be reused
-                otpRepository.deleteByEmail(email);
+                otpRepository.deleteByEmail(identifier);
                 return true;
             } else {
                 // OTP is expired
-                otpRepository.deleteByEmail(email);
+                otpRepository.deleteByEmail(identifier);
             }
         }
         return false;
