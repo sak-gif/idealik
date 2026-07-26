@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLanguage } from '@/context/LanguageContext';
-import { LogOut, Menu, X } from 'lucide-react';
+import { LogOut, Menu, X, Bell } from 'lucide-react';
 
 export default function Header() {
   const { t } = useLanguage();
@@ -16,6 +16,32 @@ export default function Header() {
   const pathname = usePathname();
   const isCustomerPage = pathname?.startsWith('/booking');
   const isHomePage = pathname === '/';
+
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState([
+    { id: 1, title: t('notifications.new') || 'New Notification', text: t('notifications.demoText') || 'You have a new message regarding your schedule.', time: '1m ago', unread: true },
+    { id: 2, title: t('notifications.system') || 'System Update', text: t('notifications.systemText') || 'Platform maintenance scheduled for tonight.', time: '2h ago', unread: false }
+  ]);
+  const hasUnread = notifications.some(n => n.unread);
+
+  const playSound = () => {
+    try {
+      const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+      audio.volume = 0.5;
+      audio.play().catch(e => console.log('Audio play prevented by browser', e));
+    } catch (e) {}
+  };
+
+  const toggleNotifications = () => {
+    if (!isNotificationsOpen && hasUnread) {
+      playSound();
+      // Mark as read after opening
+      setTimeout(() => {
+        setNotifications(prev => prev.map(n => ({ ...n, unread: false })));
+      }, 2000);
+    }
+    setIsNotificationsOpen(!isNotificationsOpen);
+  };
 
   useEffect(() => {
     setIsLoggedIn(!!localStorage.getItem('idealik_token'));
@@ -110,6 +136,45 @@ export default function Header() {
               {t('nav.logOut')}
             </button>
           )}
+
+          {/* Notifications Dropdown Container */}
+          <div className="relative">
+            <button
+              onClick={toggleNotifications}
+              className="p-2 relative text-text-main hover:text-primary transition-colors cursor-pointer rounded-full hover:bg-surface-container"
+            >
+              <Bell className="w-5 h-5" />
+              {hasUnread && (
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+              )}
+            </button>
+
+            {isNotificationsOpen && (
+              <div className="absolute top-full right-0 mt-2 w-72 md:w-80 bg-white border border-outline-variant/20 shadow-xl rounded-xl overflow-hidden z-50 animate-in slide-in-from-top-2">
+                <div className="px-4 py-3 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container/30">
+                  <h3 className="font-bold text-sm text-text-main">{t('notifications.title') || 'Notifications'}</h3>
+                  <span className="text-xs bg-primary/10 text-primary-dark px-2 py-0.5 rounded-full font-semibold">
+                    {notifications.filter(n => n.unread).length} New
+                  </span>
+                </div>
+                <div className="max-h-80 overflow-y-auto">
+                  {notifications.length === 0 ? (
+                    <div className="p-4 text-center text-sm text-text-muted">No new notifications</div>
+                  ) : (
+                    notifications.map(n => (
+                      <div key={n.id} className={`p-4 border-b border-outline-variant/5 hover:bg-surface-container/20 transition-colors cursor-pointer ${n.unread ? 'bg-primary/5' : ''}`}>
+                        <div className="flex justify-between items-start mb-1">
+                          <h4 className={`text-sm ${n.unread ? 'font-bold text-text-main' : 'font-semibold text-text-light'}`}>{n.title}</h4>
+                          <span className="text-[10px] text-text-muted whitespace-nowrap ml-2">{n.time}</span>
+                        </div>
+                        <p className="text-xs text-text-muted leading-relaxed line-clamp-2">{n.text}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
           
           <LanguageSwitcher />
 
