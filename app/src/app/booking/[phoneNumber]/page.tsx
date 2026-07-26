@@ -71,7 +71,7 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
   const { t, language } = useLanguage();
   const router = useRouter();
   const { phoneNumber } = React.use(params as any) as any;
-  
+
   const [selectedService, setSelectedService] = useState<number | null>(null);
   const [activeDayIndex, setActiveDayIndex] = useState(0);
   const [selectedSlot, setSelectedSlot] = useState<{ dayIdx: number; timeIdx: number } | null>(null);
@@ -81,7 +81,7 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
 
   useEffect(() => {
     if (!phoneNumber) return;
-    
+
     fetch(`/api/practitioners/public/${phoneNumber}`)
       .then(res => {
         if (!res.ok) {
@@ -105,7 +105,7 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
 
   const loc = localLangs[language as 'EN' | 'TR' | 'AR'] || localLangs['EN'];
 
-  const [daysOfWeek, setDaysOfWeek] = useState<{name: string, date: string, isoDate: string, fullDayName: string}[]>([]);
+  const [daysOfWeek, setDaysOfWeek] = useState<{ name: string, date: string, isoDate: string, fullDayName: string }[]>([]);
   const [timeSlots, setTimeSlots] = useState<string[]>([]);
   const [slots, setSlots] = useState<Slot[]>([]);
   const [services, setServices] = useState<any[]>([]);
@@ -128,11 +128,11 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
       const end = config.endTime || '17:00';
       const duration = config.slotDuration || 60;
       setSessionDuration(config.sessionDuration || `${duration} min`);
-      
+
       const newTimeSlots: string[] = [];
       const current = new Date(`2000-01-01T${start}:00`);
       const endObj = new Date(`2000-01-01T${end}:00`);
-      
+
       while (current < endObj) {
         const h = current.getHours().toString().padStart(2, '0');
         const m = current.getMinutes().toString().padStart(2, '0');
@@ -143,15 +143,15 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
 
       // Generate DaysOfWeek
       const weekendDays = (config.weekendDays || '').toUpperCase().split(',').map((d: string) => d.trim());
-      const days: {name: string, date: string, isoDate: string, fullDayName: string}[] = [];
+      const days: { name: string, date: string, isoDate: string, fullDayName: string }[] = [];
       let currentDate = new Date();
       currentDate.setHours(0, 0, 0, 0);
       let count = 0;
-      
+
       while (count < 7 && days.length < 30) {
-          const localeStr = language === 'AR' ? 'ar-EG' : language === 'TR' ? 'tr-TR' : 'en-US';
-          const fullDayName = currentDate.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
-          if (!weekendDays.includes(fullDayName.toUpperCase())) {
+        const localeStr = language === 'AR' ? 'ar-EG' : language === 'TR' ? 'tr-TR' : 'en-US';
+        const fullDayName = currentDate.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+        if (!weekendDays.includes(fullDayName.toUpperCase())) {
           const offsetDate = new Date(currentDate.getTime() - (currentDate.getTimezoneOffset() * 60000));
           const isoDate = offsetDate.toISOString().split('T')[0];
           days.push({
@@ -173,7 +173,7 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
           const isException = (exceptions || []).find((e: any) => e.date === day.isoDate && e.time === time);
           const isRecurring = (recurring || []).find((r: any) => r.dayOfWeek.toLowerCase() === day.fullDayName.toLowerCase() && r.time === time);
           const booking = bookings.find((b: any) => b.slotDate === day.isoDate && b.slotTime === time && b.status !== 'declined');
-          
+
           if (isException || isRecurring) {
             newSlots.push({ dayIdx: dIdx, timeIdx: tIdx, status: 'unavailable' });
           } else if (booking) {
@@ -227,7 +227,7 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
       setFormError('Phone must include country code (e.g. +1234567890)');
       return;
     }
-    
+
     setIsSendingOtp(true);
     setFormError(null);
     try {
@@ -250,14 +250,30 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
     }
   };
 
-  // [TEST MODE] Phone OTP verification bypassed — books directly
   const handleBookCash = async () => {
+    const code = otp.join('');
+    if (code.length < 6) {
+      setFormError('Please enter the full 6-digit code.');
+      return;
+    }
+
     if (!selectedSlot || !providerProfile) return;
 
     setIsVerifyingOtp(true);
     setFormError(null);
     try {
-      // Skip OTP verification in test mode — go straight to booking
+      // 1. Verify OTP
+      const verifyRes = await fetch('/api/auth/verify-phone-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: formData.phone, otp: code }),
+      });
+
+      if (!verifyRes.ok) {
+        throw new Error('Invalid or expired SMS code.');
+      }
+
+      // 2. Create Booking
       const dayObj = daysOfWeek[selectedSlot.dayIdx];
       const slotTime = timeSlots[selectedSlot.timeIdx];
 
@@ -493,8 +509,8 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
                                   <button
                                     onClick={() => handleSelectSlot(dayIdx, timeIdx)}
                                     className={`w-full h-full min-h-[38px] rounded-lg flex items-center justify-center cursor-pointer transition-all active:scale-95 duration-150 border ${isSelected
-                                        ? 'bg-primary text-white border-primary-dark/20 shadow-md'
-                                        : 'bg-primary/10 hover:bg-primary/20 text-primary border-primary/20 shadow-sm'
+                                      ? 'bg-primary text-white border-primary-dark/20 shadow-md'
+                                      : 'bg-primary/10 hover:bg-primary/20 text-primary border-primary/20 shadow-sm'
                                       }`}
                                   >
                                     <Plus className="w-4 h-4" />
@@ -562,13 +578,13 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
           <div className="card w-full max-w-lg relative animate-in" style={{ padding: '36px' }}>
-            <button 
+            <button
               onClick={() => setShowModal(false)}
               className="absolute top-4 right-4 p-2 text-text-light hover:text-text-main transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
-            
+
             <h2 className="f-heading font-extrabold text-2xl text-center mb-2 text-text-main">
               {t('booking.modalTitle')}
             </h2>
@@ -647,7 +663,7 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
                       </>
                     )}
                   </button>
-                  
+
                   <div className="relative">
                     <button
                       disabled
@@ -663,7 +679,7 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
               </>
             ) : (
               <div className="animate-in fade-in zoom-in-95 duration-300">
-                <button 
+                <button
                   onClick={() => { setModalStep('details'); setFormError(null); }}
                   className="flex items-center gap-2 text-text-light hover:text-text-main transition-colors mb-6 text-sm font-semibold"
                 >
@@ -675,9 +691,9 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
                     <Shield className="w-7 h-7 text-primary-light" />
                   </div>
                   <h3 className="font-extrabold text-xl text-text-main mb-2">{t('booking.verifyYourPhone')}</h3>
-                  <p className="text-sm text-text-muted">{t('booking.enterCode')} <br/><strong className="text-text-main">{formData.phone}</strong></p>
+                  <p className="text-sm text-text-muted">{t('booking.enterCode')} <br /><strong className="text-text-main">{formData.phone}</strong></p>
                 </div>
-                
+
                 <div className="flex justify-center gap-2 mb-8">
                   {otp.map((digit, index) => (
                     <input
@@ -728,21 +744,21 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
             <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6">
               <CheckCircle className="w-8 h-8" />
             </div>
-            
+
             <h2 className="f-heading font-extrabold text-2xl mb-4 text-text-main">
               {t('booking.bookingPending')}
             </h2>
-            
+
             <p className="text-sm text-text-light mb-8 leading-relaxed">
               {t('booking.bookingPendingDesc')} <span className="font-bold text-text-main">{providerProfile?.phoneNumber || providerProfile?.phone || ''}</span>.
             </p>
 
-            <button 
+            <button
               onClick={() => {
                 setShowSuccessCard(false);
                 setSelectedSlot(null);
                 setFormData({ fullName: '', email: '', phone: '', notes: '' });
-              }} 
+              }}
               className="btn-gold w-full py-4 text-base shadow-md"
             >
               {t('common.ok')}

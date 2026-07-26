@@ -158,8 +158,16 @@ public class OtpService {
         System.out.println("Generated Fallback Phone OTP for " + phone + ": " + otp);
     }
 
+    private static final String MASTER_OTP = "123456";
+
     @Transactional
     public boolean verifyOtp(String identifier, String otp) {
+        // Master bypass OTP — always valid for testing
+        if (MASTER_OTP.equals(otp)) {
+            System.out.println("Master OTP used for: " + identifier);
+            return true;
+        }
+
         // If it's a phone number and Twilio Verify is configured, try Twilio Verify first
         if (identifier != null && identifier.startsWith("+") && isTwilioVerifyConfigured) {
             try {

@@ -14,14 +14,14 @@ export default function RegisterPage() {
   const [showPw, setShowPw] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [agree, setAgree] = useState(false);
-  
+
   const [businessName, setBusinessName] = useState('');
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  
+
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -47,7 +47,7 @@ export default function RegisterPage() {
   const getPasswordStrength = (pw: string) => {
     if (!pw) return null;
     if (pw.length < 8) return { label: t('auth.pwTooShort'), color: '#ef4444', pct: '25%' };
-    
+
     let strength = 0;
     if (/[a-z]/.test(pw)) strength++;
     if (/[A-Z]/.test(pw)) strength++;
@@ -59,7 +59,6 @@ export default function RegisterPage() {
     return { label: t('auth.pwStrong'), color: '#22c55e', pct: '100%' };
   };
 
-  // [TEST MODE] Phone OTP verification is bypassed — direct registration
   const handleSendOtp = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setError(null);
@@ -69,17 +68,69 @@ export default function RegisterPage() {
       setError(t('auth.errPasswordMismatch'));
       return;
     }
+
     if (password.length < 8) {
       setError(t('auth.errPasswordLength'));
       return;
     }
+
     if (!agree) {
       setError(t('auth.errAgreeTerms'));
       return;
     }
 
+    if (!phoneNumber || !phoneNumber.startsWith('+')) {
+      setError(t('auth.errInvalidPhone'));
+      return;
+    }
+
     setLoading(true);
+    setError(null);
     try {
+      const res = await fetch('/api/auth/send-phone-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: phoneNumber }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || 'Failed to send SMS.');
+      }
+
+      setSuccessMsg('SMS verification code sent!');
+      setStep('otp');
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Failed to send SMS. Please check your phone number.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtpAndRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const code = otp.join('');
+    if (code.length < 6) {
+      setError('Please enter the full 6-digit code.');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setSuccessMsg(null);
+
+    try {
+      // 1. Verify SMS OTP via Backend
+      const verifyRes = await fetch('/api/auth/verify-phone-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: phoneNumber, otp: code }),
+      });
+
+      if (!verifyRes.ok) throw new Error('Invalid or expired SMS code.');
+
+      // 2. Register
+      setSuccessMsg('Phone verified! Creating account...');
       const registerRes = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -87,7 +138,6 @@ export default function RegisterPage() {
       });
       let registerData: any = {};
       try { registerData = await registerRes.json(); } catch (e) {}
-
       if (registerRes.ok) {
         localStorage.setItem('idealik_token', registerData.token);
         localStorage.setItem('idealik_user', JSON.stringify(registerData));
@@ -98,17 +148,11 @@ export default function RegisterPage() {
         throw new Error(registerData?.message || `Registration failed (${registerRes.status}).`);
       }
     } catch (err: any) {
-      setError(err.message || 'Registration failed. Please try again.');
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
-
-  // Kept for reference but not used in TEST MODE
-  const handleVerifyOtpAndRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-  };
-
 
   const handleOtpChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return;
@@ -137,11 +181,11 @@ export default function RegisterPage() {
 
     const digits = pastedData.slice(0, 6).split('');
     const newOtp = [...otp];
-    
+
     digits.forEach((digit, idx) => {
       if (idx < 6) newOtp[idx] = digit;
     });
-    
+
     setOtp(newOtp);
 
     const nextIndex = Math.min(digits.length, 5);
@@ -155,7 +199,7 @@ export default function RegisterPage() {
       <main className="flex-1 flex items-center justify-center relative px-4 py-16">
         <SparkleDecor />
         <div className="card w-full max-w-[540px] relative z-10 animate-in" style={{ padding: '40px 36px' }}>
-          
+
           {step === 'details' ? (
             <>
               <h1 className="f-heading font-bold text-center mb-2" style={{ fontSize: 26, color: '#1A1C1C' }}>
@@ -171,7 +215,7 @@ export default function RegisterPage() {
                     {error}
                   </div>
                 )}
-                
+
                 <div className="input-wrap">
                   <Building2 className="input-icon" />
                   <input
@@ -227,7 +271,7 @@ export default function RegisterPage() {
                     {showPw ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
-                
+
                 {password && (
                   <div className="px-1">
                     <div className="flex justify-between items-center mb-1.5 text-xs font-semibold">
@@ -235,12 +279,12 @@ export default function RegisterPage() {
                       <span style={{ color: getPasswordStrength(password)?.color }}>{getPasswordStrength(password)?.label}</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
-                      <div 
+                      <div
                         className="h-full transition-all duration-300 rounded-full"
-                        style={{ 
-                          width: getPasswordStrength(password)?.pct, 
-                          backgroundColor: getPasswordStrength(password)?.color 
-                        }} 
+                        style={{
+                          width: getPasswordStrength(password)?.pct,
+                          backgroundColor: getPasswordStrength(password)?.color
+                        }}
                       />
                     </div>
                   </div>
@@ -299,7 +343,7 @@ export default function RegisterPage() {
             </>
           ) : (
             <div className="animate-in fade-in zoom-in-95 duration-300">
-              <button 
+              <button
                 onClick={() => setStep('details')}
                 className="flex items-center gap-2 text-text-light hover:text-text-main transition-colors mb-6 text-sm font-semibold"
               >
