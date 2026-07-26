@@ -22,6 +22,12 @@ export default function TranslatedText({ en, ar, tr }: TranslatedTextProps) {
   
   if (language === 'AR' && ar) return <>{ar}</>;
   if (language === 'TR' && tr) return <>{tr}</>;
+  if (language === 'EN' && en) return <>{en}</>;
   
-  return <>{en}</>;
+  // Fallback if the requested language is empty (e.g. before auto-translation completes)
+  if (en) return <>{en}</>;
+  if (ar) return <>{ar}</>;
+  if (tr) return <>{tr}</>;
+  
+  return null;
 }

@@ -13,11 +13,7 @@ export default function ServicesTab() {
   const { t, language } = useLanguage();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [descriptionAr, setDescriptionAr] = useState('');
-  const [descriptionTr, setDescriptionTr] = useState('');
   const [businessName, setBusinessName] = useState('');
-  const [businessNameAr, setBusinessNameAr] = useState('');
-  const [businessNameTr, setBusinessNameTr] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [photoUrl, setPhotoUrl] = useState('');
   const [email, setEmail] = useState('');
@@ -39,18 +35,20 @@ export default function ServicesTab() {
 
   // Add Service Modal States
   const [showAddModal, setShowAddModal] = useState(false);
-  const [newTitle, setNewTitle] = useState('');
-  const [newTitleAr, setNewTitleAr] = useState('');
-  const [newTitleTr, setNewTitleTr] = useState('');
   const [newDesc, setNewDesc] = useState('');
-  const [newDescAr, setNewDescAr] = useState('');
-  const [newDescTr, setNewDescTr] = useState('');
   const [newPrice, setNewPrice] = useState('');
   const [newCurrency, setNewCurrency] = useState('USD');
   const [newImage, setNewImage] = useState('/telehealth.png');
   const [editingServiceId, setEditingServiceId] = useState<number | null>(null);
   const [modalError, setModalError] = useState<string | null>(null);
   const [modalLoading, setModalLoading] = useState(false);
+
+  const detectLanguage = (text: string): 'EN' | 'AR' | 'TR' => {
+    if (!text) return 'EN';
+    if (/[\u0600-\u06FF]/.test(text)) return 'AR';
+    if (/[çğıöşüÇĞIÖŞÜ]/.test(text)) return 'TR';
+    return 'EN';
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('idealik_token');
@@ -77,12 +75,8 @@ export default function ServicesTab() {
         
         const profileData = await profileRes.json();
         setName(profileData.name || '');
-        setDescription(profileData.description || '');
-        setDescriptionAr(profileData.descriptionAr || '');
-        setDescriptionTr(profileData.descriptionTr || '');
-        setBusinessName(profileData.businessName || '');
-        setBusinessNameAr(profileData.businessNameAr || '');
-        setBusinessNameTr(profileData.businessNameTr || '');
+        setDescription(profileData.description || profileData.descriptionAr || profileData.descriptionTr || '');
+        setBusinessName(profileData.businessName || profileData.businessNameAr || profileData.businessNameTr || '');
         setPhoneNumber(profileData.phoneNumber || profileData.phone || '');
         setEmail(profileData.email || '');
         setPhotoUrl(profileData.photoUrl || '');
@@ -124,14 +118,14 @@ export default function ServicesTab() {
         },
         body: JSON.stringify({
           name: name || 'Practitioner',
-          businessName,
-          businessNameAr,
-          businessNameTr,
+          businessName: detectLanguage(businessName) === 'EN' ? businessName : '',
+          businessNameAr: detectLanguage(businessName) === 'AR' ? businessName : '',
+          businessNameTr: detectLanguage(businessName) === 'TR' ? businessName : '',
           phone: phoneNumber,
           email,
-          description,
-          descriptionAr,
-          descriptionTr,
+          description: detectLanguage(description) === 'EN' ? description : '',
+          descriptionAr: detectLanguage(description) === 'AR' ? description : '',
+          descriptionTr: detectLanguage(description) === 'TR' ? description : '',
           photoUrl: newPhotoDataUrl
         })
       });
@@ -184,14 +178,14 @@ export default function ServicesTab() {
         },
         body: JSON.stringify({
           name: name || 'Practitioner',
-          businessName,
-          businessNameAr,
-          businessNameTr,
+          businessName: detectLanguage(businessName) === 'EN' ? businessName : '',
+          businessNameAr: detectLanguage(businessName) === 'AR' ? businessName : '',
+          businessNameTr: detectLanguage(businessName) === 'TR' ? businessName : '',
           phone: phoneNumber,
           email,
-          description,
-          descriptionAr,
-          descriptionTr,
+          description: detectLanguage(description) === 'EN' ? description : '',
+          descriptionAr: detectLanguage(description) === 'AR' ? description : '',
+          descriptionTr: detectLanguage(description) === 'TR' ? description : '',
           photoUrl
         })
       });
@@ -215,11 +209,7 @@ export default function ServicesTab() {
   const resetModal = () => {
     setEditingServiceId(null);
     setNewTitle('');
-    setNewTitleAr('');
-    setNewTitleTr('');
     setNewDesc('');
-    setNewDescAr('');
-    setNewDescTr('');
     setNewPrice('');
     setNewCurrency('USD');
     setNewImage('/telehealth.png');
@@ -228,12 +218,8 @@ export default function ServicesTab() {
 
   const handleEditClick = (svc: any) => {
     setEditingServiceId(svc.id);
-    setNewTitle(svc.title);
-    setNewTitleAr(svc.titleAr || '');
-    setNewTitleTr(svc.titleTr || '');
-    setNewDesc(svc.description || '');
-    setNewDescAr(svc.descriptionAr || '');
-    setNewDescTr(svc.descriptionTr || '');
+    setNewTitle(svc.title || svc.titleAr || svc.titleTr || '');
+    setNewDesc(svc.description || svc.descriptionAr || svc.descriptionTr || '');
     setNewPrice(svc.price);
     setNewCurrency(svc.currency || 'USD');
     setNewImage(svc.photoUrl || '/telehealth.png');
@@ -261,12 +247,12 @@ export default function ServicesTab() {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          title: newTitle,
-          titleAr: newTitleAr,
-          titleTr: newTitleTr,
-          description: newDesc,
-          descriptionAr: newDescAr,
-          descriptionTr: newDescTr,
+          title: detectLanguage(newTitle) === 'EN' ? newTitle : '',
+          titleAr: detectLanguage(newTitle) === 'AR' ? newTitle : '',
+          titleTr: detectLanguage(newTitle) === 'TR' ? newTitle : '',
+          description: detectLanguage(newDesc) === 'EN' ? newDesc : '',
+          descriptionAr: detectLanguage(newDesc) === 'AR' ? newDesc : '',
+          descriptionTr: detectLanguage(newDesc) === 'TR' ? newDesc : '',
           price: newPrice.toString().trim() !== '' ? parseFloat(newPrice.toString()) : null,
           currency: newCurrency,
           photoUrl: newImage
@@ -381,33 +367,13 @@ export default function ServicesTab() {
         </div>
 
         <div className="mb-6 text-left">
-          <label className="block text-base f-heading font-semibold mb-3" style={{ color: '#1A1C1C' }}>{t('profile.businessName')} (EN)</label>
+          <label className="block text-base f-heading font-semibold mb-3" style={{ color: '#1A1C1C' }}>{t('profile.businessName')}</label>
           <input
             type="text"
             value={businessName}
             onChange={(e) => setBusinessName(e.target.value)}
             className="input-field input-no-icon text-base"
-          />
-        </div>
-
-        <div className="mb-6 text-left">
-          <label className="block text-base f-heading font-semibold mb-3" style={{ color: '#1A1C1C' }}>{t('profile.businessName')} (AR)</label>
-          <input
-            type="text"
-            value={businessNameAr}
-            onChange={(e) => setBusinessNameAr(e.target.value)}
-            className="input-field input-no-icon text-base"
-            dir="rtl"
-          />
-        </div>
-
-        <div className="mb-6 text-left">
-          <label className="block text-base f-heading font-semibold mb-3" style={{ color: '#1A1C1C' }}>{t('profile.businessName')} (TR)</label>
-          <input
-            type="text"
-            value={businessNameTr}
-            onChange={(e) => setBusinessNameTr(e.target.value)}
-            className="input-field input-no-icon text-base"
+            dir={detectLanguage(businessName) === 'AR' ? 'rtl' : 'ltr'}
           />
         </div>
 
@@ -422,36 +388,14 @@ export default function ServicesTab() {
         </div>
 
         <div className="mb-8 text-left">
-          <label className="block text-base f-heading font-semibold mb-3" style={{ color: '#1A1C1C' }}>{t('profile.description')} (EN)</label>
+          <label className="block text-base f-heading font-semibold mb-3" style={{ color: '#1A1C1C' }}>{t('profile.description')}</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={5}
             className="input-field input-no-icon resize-none text-base"
             style={{ paddingLeft: 16 }}
-          />
-        </div>
-
-        <div className="mb-8 text-left">
-          <label className="block text-base f-heading font-semibold mb-3" style={{ color: '#1A1C1C' }}>{t('profile.description')} (AR)</label>
-          <textarea
-            value={descriptionAr}
-            onChange={(e) => setDescriptionAr(e.target.value)}
-            rows={5}
-            className="input-field input-no-icon resize-none text-base"
-            style={{ paddingLeft: 16 }}
-            dir="rtl"
-          />
-        </div>
-
-        <div className="mb-8 text-left">
-          <label className="block text-base f-heading font-semibold mb-3" style={{ color: '#1A1C1C' }}>{t('profile.description')} (TR)</label>
-          <textarea
-            value={descriptionTr}
-            onChange={(e) => setDescriptionTr(e.target.value)}
-            rows={5}
-            className="input-field input-no-icon resize-none text-base"
-            style={{ paddingLeft: 16 }}
+            dir={detectLanguage(description) === 'AR' ? 'rtl' : 'ltr'}
           />
         </div>
 
@@ -611,41 +555,19 @@ export default function ServicesTab() {
 
             <form onSubmit={handleSubmitService} className="space-y-4 text-left">
               <div>
-                <label className="block text-xs f-heading font-semibold mb-2 text-text-main">{t('services.serviceTitle')} (EN)</label>
+                <label className="block text-xs f-heading font-semibold mb-2 text-text-main">{t('services.serviceTitle')}</label>
                 <input
                   type="text"
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                   className="input-field input-no-icon text-sm h-[46px]"
                   placeholder="e.g. Telehealth Consultation (Optional)"
+                  dir={detectLanguage(newTitle) === 'AR' ? 'rtl' : 'ltr'}
                 />
               </div>
 
               <div>
-                <label className="block text-xs f-heading font-semibold mb-2 text-text-main">{t('services.serviceTitle')} (AR)</label>
-                <input
-                  type="text"
-                  value={newTitleAr}
-                  onChange={(e) => setNewTitleAr(e.target.value)}
-                  className="input-field input-no-icon text-sm h-[46px]"
-                  placeholder="e.g. استشارة عن بعد (اختياري)"
-                  dir="rtl"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs f-heading font-semibold mb-2 text-text-main">{t('services.serviceTitle')} (TR)</label>
-                <input
-                  type="text"
-                  value={newTitleTr}
-                  onChange={(e) => setNewTitleTr(e.target.value)}
-                  className="input-field input-no-icon text-sm h-[46px]"
-                  placeholder="e.g. Teletıp Danışmanlığı (İsteğe bağlı)"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs f-heading font-semibold mb-2 text-text-main">{t('services.serviceDesc')} (EN)</label>
+                <label className="block text-xs f-heading font-semibold mb-2 text-text-main">{t('services.serviceDesc')}</label>
                 <textarea
                   value={newDesc}
                   onChange={(e) => setNewDesc(e.target.value)}
@@ -653,31 +575,7 @@ export default function ServicesTab() {
                   rows={2}
                   placeholder="Briefly describe the service (Optional)..."
                   style={{ paddingLeft: 16 }}
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs f-heading font-semibold mb-2 text-text-main">{t('services.serviceDesc')} (AR)</label>
-                <textarea
-                  value={newDescAr}
-                  onChange={(e) => setNewDescAr(e.target.value)}
-                  className="input-field input-no-icon text-sm resize-none"
-                  rows={2}
-                  placeholder="وصف الخدمة باختصار (اختياري)..."
-                  style={{ paddingLeft: 16 }}
-                  dir="rtl"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs f-heading font-semibold mb-2 text-text-main">{t('services.serviceDesc')} (TR)</label>
-                <textarea
-                  value={newDescTr}
-                  onChange={(e) => setNewDescTr(e.target.value)}
-                  className="input-field input-no-icon text-sm resize-none"
-                  rows={2}
-                  placeholder="Hizmeti kısaca açıklayın (İsteğe bağlı)..."
-                  style={{ paddingLeft: 16 }}
+                  dir={detectLanguage(newDesc) === 'AR' ? 'rtl' : 'ltr'}
                 />
               </div>
 
