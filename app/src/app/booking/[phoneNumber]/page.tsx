@@ -250,30 +250,14 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
     }
   };
 
+  // [TEST MODE] Phone OTP verification bypassed — books directly
   const handleBookCash = async () => {
-    const code = otp.join('');
-    if (code.length < 6) {
-      setFormError('Please enter the full 6-digit code.');
-      return;
-    }
-
     if (!selectedSlot || !providerProfile) return;
 
     setIsVerifyingOtp(true);
     setFormError(null);
     try {
-      // 1. Verify OTP
-      const verifyRes = await fetch('/api/auth/verify-phone-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: formData.phone, otp: code }),
-      });
-      
-      if (!verifyRes.ok) {
-        throw new Error('Invalid or expired SMS code.');
-      }
-
-      // 2. Create Booking
+      // Skip OTP verification in test mode — go straight to booking
       const dayObj = daysOfWeek[selectedSlot.dayIdx];
       const slotTime = timeSlots[selectedSlot.timeIdx];
 
@@ -295,9 +279,9 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
         body: JSON.stringify(bookingRequest)
       });
       if (res.ok) {
-        setSlots(prev => prev.map(s => 
-          s.dayIdx === selectedSlot.dayIdx && s.timeIdx === selectedSlot.timeIdx 
-            ? { ...s, status: 'pending' } 
+        setSlots(prev => prev.map(s =>
+          s.dayIdx === selectedSlot.dayIdx && s.timeIdx === selectedSlot.timeIdx
+            ? { ...s, status: 'pending' }
             : s
         ));
         setShowModal(false);

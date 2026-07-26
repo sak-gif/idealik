@@ -59,6 +59,7 @@ export default function RegisterPage() {
     return { label: t('auth.pwStrong'), color: '#22c55e', pct: '100%' };
   };
 
+  // [TEST MODE] Phone OTP verification is bypassed — direct registration
   const handleSendOtp = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setError(null);
@@ -68,107 +69,46 @@ export default function RegisterPage() {
       setError(t('auth.errPasswordMismatch'));
       return;
     }
-
     if (password.length < 8) {
       setError(t('auth.errPasswordLength'));
       return;
     }
-
     if (!agree) {
       setError(t('auth.errAgreeTerms'));
       return;
     }
 
-    if (!phoneNumber || !phoneNumber.startsWith('+')) {
-      setError(t('auth.errInvalidPhone'));
-      return;
-    }
-
     setLoading(true);
-    setError(null);
     try {
-      const res = await fetch('/api/auth/send-phone-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: phoneNumber }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || 'Failed to send SMS.');
-      }
-      
-      setSuccessMsg('SMS verification code sent!');
-      setStep('otp');
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message || 'Failed to send SMS. Please check your phone number.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVerifyOtpAndRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const code = otp.join('');
-    if (code.length < 6) {
-      setError('Please enter the full 6-digit code.');
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    setSuccessMsg(null);
-    
-    try {
-      // 1. Verify SMS OTP via Backend
-      const verifyRes = await fetch('/api/auth/verify-phone-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: phoneNumber, otp: code }),
-      });
-      
-      if (!verifyRes.ok) {
-        throw new Error('Invalid or expired SMS code.');
-      }
-
-      // 2. Register User
-      setSuccessMsg('Phone verified successfully! Creating account...');
-      
       const registerRes = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          businessName,
-          email,
-          phoneNumber,
-          password
-        }),
+        body: JSON.stringify({ businessName, email, phoneNumber, password }),
       });
       let registerData: any = {};
-      try {
-        registerData = await registerRes.json();
-      } catch (e) {
-        // Response wasn't JSON
-      }
-      
+      try { registerData = await registerRes.json(); } catch (e) {}
+
       if (registerRes.ok) {
         localStorage.setItem('idealik_token', registerData.token);
         localStorage.setItem('idealik_user', JSON.stringify(registerData));
         sessionStorage.removeItem('idealik_pending_registration');
         setSuccessMsg('Account created! Redirecting to dashboard...');
-        setTimeout(() => {
-          window.location.href = '/dashboard';
-        }, 1500);
+        setTimeout(() => { window.location.href = '/dashboard'; }, 1500);
       } else {
-        throw new Error(registerData?.message || registerData?.error || `Registration failed (${registerRes.status}).`);
+        throw new Error(registerData?.message || `Registration failed (${registerRes.status}).`);
       }
-
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
+
+  // Kept for reference but not used in TEST MODE
+  const handleVerifyOtpAndRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+  };
+
 
   const handleOtpChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return;
