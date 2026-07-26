@@ -19,8 +19,8 @@ export default function Header() {
 
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [notifications, setNotifications] = useState([
-    { id: 1, title: t('notifications.new') || 'New Notification', text: t('notifications.demoText') || 'You have a new message regarding your schedule.', time: '1m ago', unread: true },
-    { id: 2, title: t('notifications.system') || 'System Update', text: t('notifications.systemText') || 'Platform maintenance scheduled for tonight.', time: '2h ago', unread: false }
+    { id: 1, titleKey: 'notifications.new', textKey: 'notifications.demoText', time: '1m', unread: true },
+    { id: 2, titleKey: 'notifications.system', textKey: 'notifications.systemText', time: '2h', unread: false }
   ]);
   const hasUnread = notifications.some(n => n.unread);
 
@@ -152,22 +152,22 @@ export default function Header() {
             {isNotificationsOpen && (
               <div className="absolute top-full right-0 mt-2 w-72 md:w-80 bg-white border border-outline-variant/20 shadow-xl rounded-xl overflow-hidden z-50 animate-in slide-in-from-top-2">
                 <div className="px-4 py-3 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container/30">
-                  <h3 className="font-bold text-sm text-text-main">{t('notifications.title') || 'Notifications'}</h3>
+                  <h3 className="font-bold text-sm text-text-main">{t('notifications.title')}</h3>
                   <span className="text-xs bg-primary/10 text-primary-dark px-2 py-0.5 rounded-full font-semibold">
-                    {notifications.filter(n => n.unread).length} New
+                    {notifications.filter(n => n.unread).length} {t('notifications.newBadge')}
                   </span>
                 </div>
                 <div className="max-h-80 overflow-y-auto">
                   {notifications.length === 0 ? (
-                    <div className="p-4 text-center text-sm text-text-muted">No new notifications</div>
+                    <div className="p-4 text-center text-sm text-text-muted">{t('notifications.empty')}</div>
                   ) : (
                     notifications.map(n => (
                       <div key={n.id} className={`p-4 border-b border-outline-variant/5 hover:bg-surface-container/20 transition-colors cursor-pointer ${n.unread ? 'bg-primary/5' : ''}`}>
                         <div className="flex justify-between items-start mb-1">
-                          <h4 className={`text-sm ${n.unread ? 'font-bold text-text-main' : 'font-semibold text-text-light'}`}>{n.title}</h4>
+                          <h4 className={`text-sm ${n.unread ? 'font-bold text-text-main' : 'font-semibold text-text-light'}`}>{t(n.titleKey)}</h4>
                           <span className="text-[10px] text-text-muted whitespace-nowrap ml-2">{n.time}</span>
                         </div>
-                        <p className="text-xs text-text-muted leading-relaxed line-clamp-2">{n.text}</p>
+                        <p className="text-xs text-text-muted leading-relaxed line-clamp-2">{t(n.textKey)}</p>
                       </div>
                     ))
                   )}
