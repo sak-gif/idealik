@@ -348,5 +348,12 @@
     "monday": "Pazartesi",
     "tuesday": "Salı",
     "wednesday": "Çarşamba"
+  },
+  "notifications": {
+    "title": "Bildirimler",
+    "new": "Yeni Bildirim",
+    "demoText": "Programınızla ilgili yeni bir mesajınız var.",
+    "system": "Sistem Güncellemesi",
+    "systemText": "Platform bakımı bu gece için planlandı."
   }
 }

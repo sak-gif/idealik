@@ -6,6 +6,8 @@ import com.idealik.backend.repository.PractitionerRepository;
 import com.idealik.backend.repository.BookingRepository;
 import com.idealik.backend.repository.ContactMessageRepository;
 import com.idealik.backend.model.ContactMessage;
+import com.idealik.backend.dto.RegisterRequest;
+import com.idealik.backend.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +35,9 @@ public class AdminController {
 
     @Autowired
     private EntityManager entityManager;
+
+    @Autowired
+    private AuthService authService;
 
     private static final String ADMIN_TOKEN = "admin_ideal_secret_token";
 
@@ -68,6 +73,23 @@ public class AdminController {
         )).collect(Collectors.toList());
 
         return ResponseEntity.ok(dto);
+    }
+
+    @PostMapping("/practitioners")
+    public ResponseEntity<?> createPractitioner(
+            @RequestHeader(value = "Authorization", required = false) String token,
+            @RequestBody RegisterRequest request) {
+        if (!isAuthorized(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Unauthorized"));
+        }
+        try {
+            com.idealik.backend.dto.AuthResponse response = authService.register(request);
+            return ResponseEntity.ok(Map.of("message", "Practitioner created successfully", "practitioner", response));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "Failed to create practitioner"));
+        }
     }
 
     @DeleteMapping("/practitioners/{id}")

@@ -38,6 +38,16 @@ export default function AdminPage() {
   const [practitioners, setPractitioners] = useState<any[]>([]);
   const [messages, setMessages] = useState<any[]>([]);
 
+  // Create Practitioner State
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newPractitioner, setNewPractitioner] = useState({
+    businessName: '',
+    email: '',
+    phoneNumber: '',
+    password: ''
+  });
+  const [isCreating, setIsCreating] = useState(false);
+
   useEffect(() => {
     const storedToken = localStorage.getItem('admin_idealik_token');
     if (storedToken) {
@@ -119,6 +129,35 @@ export default function AdminPage() {
     } catch (err) {
       console.error(err);
       showAlert('Error', 'An unexpected error occurred while deleting.');
+    }
+  };
+
+  const handleCreatePractitioner = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsCreating(true);
+    try {
+      const res = await fetch('/api/admin/practitioners', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(newPractitioner)
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showAlert('Success', 'Practitioner created successfully.');
+        setShowCreateModal(false);
+        setNewPractitioner({ businessName: '', email: '', phoneNumber: '', password: '' });
+        fetchAdminData();
+      } else {
+        showAlert('Error', data.message || 'Failed to create practitioner.');
+      }
+    } catch (err: any) {
+      console.error(err);
+      showAlert('Error', err.message || 'An unexpected error occurred.');
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -227,10 +266,18 @@ export default function AdminPage() {
 
             {activeTab === 'users' ? (
               <div className="space-y-4 animate-fade-in">
-                <h2 className="f-heading font-bold text-xl mb-4 text-text-main flex items-center gap-2">
-                  <Users className="w-5 h-5 text-primary" />
-                  Registered Practitioners ({practitioners.length})
-                </h2>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                  <h2 className="f-heading font-bold text-xl text-text-main flex items-center gap-2">
+                    <Users className="w-5 h-5 text-primary" />
+                    Registered Practitioners ({practitioners.length})
+                  </h2>
+                  <button 
+                    onClick={() => setShowCreateModal(true)}
+                    className="btn-gold py-2 px-4 text-sm"
+                  >
+                    + Create Practitioner
+                  </button>
+                </div>
                 {practitioners.length === 0 ? (
                   <p className="text-sm text-text-light text-center py-10">No practitioners found.</p>
                 ) : (
@@ -339,6 +386,80 @@ export default function AdminPage() {
                 {modal.type === 'confirm' ? 'Delete' : 'OK'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Practitioner Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/40 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl scale-100 animate-in max-h-[90vh] overflow-y-auto">
+            <h3 className="f-heading text-xl font-bold text-text-main mb-4 border-b pb-3">
+              Create New Practitioner
+            </h3>
+            <form onSubmit={handleCreatePractitioner} className="space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-text-main mb-1">Business Name</label>
+                <input 
+                  type="text" 
+                  className="input-field"
+                  required
+                  value={newPractitioner.businessName}
+                  onChange={(e) => setNewPractitioner(prev => ({...prev, businessName: e.target.value}))}
+                  placeholder="E.g., Dr. Smith Clinic"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-text-main mb-1">Email</label>
+                <input 
+                  type="email" 
+                  className="input-field"
+                  required
+                  value={newPractitioner.email}
+                  onChange={(e) => setNewPractitioner(prev => ({...prev, email: e.target.value}))}
+                  placeholder="Email Address"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-text-main mb-1">Phone Number</label>
+                <input 
+                  type="tel" 
+                  className="input-field"
+                  required
+                  value={newPractitioner.phoneNumber}
+                  onChange={(e) => setNewPractitioner(prev => ({...prev, phoneNumber: e.target.value}))}
+                  placeholder="+1234567890"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-text-main mb-1">Password</label>
+                <input 
+                  type="password" 
+                  className="input-field"
+                  required
+                  value={newPractitioner.password}
+                  onChange={(e) => setNewPractitioner(prev => ({...prev, password: e.target.value}))}
+                  placeholder="Secure password"
+                />
+              </div>
+              
+              <div className="flex justify-end gap-3 pt-4 border-t mt-6">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(false)}
+                  className="px-4 py-2 text-sm font-bold text-text-light hover:bg-neutral-100 rounded-xl transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isCreating}
+                  className="btn-gold py-2 px-6"
+                >
+                  {isCreating ? 'Creating...' : 'Create Account'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

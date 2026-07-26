@@ -348,5 +348,12 @@
     "monday": "Monday",
     "tuesday": "Tuesday",
     "wednesday": "Wednesday"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "new": "New Notification",
+    "demoText": "You have a new message regarding your schedule.",
+    "system": "System Update",
+    "systemText": "Platform maintenance scheduled for tonight."
   }
 }
