@@ -168,11 +168,15 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
 
       // Map bookings to slots
       const newSlots: Slot[] = [];
+      const safeExceptions = Array.isArray(exceptions) ? exceptions : [];
+      const safeRecurring = Array.isArray(recurring) ? recurring : [];
+      const safeBookings = Array.isArray(bookings) ? bookings : [];
+
       days.forEach((day, dIdx) => {
         newTimeSlots.forEach((time, tIdx) => {
-          const isException = (exceptions || []).find((e: any) => e.date === day.isoDate && e.time === time);
-          const isRecurring = (recurring || []).find((r: any) => r.dayOfWeek.toLowerCase() === day.fullDayName.toLowerCase() && r.time === time);
-          const booking = bookings.find((b: any) => b.slotDate === day.isoDate && b.slotTime === time && b.status !== 'declined');
+          const isException = safeExceptions.find((e: any) => e.date === day.isoDate && e.time === time);
+          const isRecurring = safeRecurring.find((r: any) => r.dayOfWeek.toLowerCase() === day.fullDayName.toLowerCase() && r.time === time);
+          const booking = safeBookings.find((b: any) => b.slotDate === day.isoDate && b.slotTime === time && b.status !== 'declined');
 
           if (isException || isRecurring) {
             newSlots.push({ dayIdx: dIdx, timeIdx: tIdx, status: 'unavailable' });

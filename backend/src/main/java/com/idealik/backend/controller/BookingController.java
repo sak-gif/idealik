@@ -294,7 +294,7 @@ public class BookingController {
         if (practitioner == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Unauthorized"));
 
         var exc = bookingService.addExceptionSlot(practitioner, payload.get("date"), payload.get("time"), payload.get("reason"));
-        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("id", exc.getId(), "date", exc.getDate(), "time", exc.getTime(), "reason", exc.getReason()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("id", exc.getId(), "date", exc.getDate(), "time", exc.getTime(), "reason", exc.getReason() != null ? exc.getReason() : ""));
     }
 
     @DeleteMapping("/exception-slots/{id}")
@@ -311,7 +311,7 @@ public class BookingController {
     public ResponseEntity<?> getPublicExceptionSlots(@PathVariable Long practitionerId) {
         List<com.idealik.backend.model.ExceptionSlot> exceptions = bookingService.getExceptionSlots(practitionerId);
         List<Map<String, Object>> dtos = exceptions.stream().map(e -> Map.<String, Object>of(
-            "date", e.getDate(), "time", e.getTime(), "reason", e.getReason()
+            "date", e.getDate(), "time", e.getTime(), "reason", e.getReason() != null ? e.getReason() : ""
         )).toList();
         return ResponseEntity.ok(dtos);
     }
