@@ -35,6 +35,7 @@ export default function ServicesTab() {
 
   // Add Service Modal States
   const [showAddModal, setShowAddModal] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
   const [newDesc, setNewDesc] = useState('');
   const [newPrice, setNewPrice] = useState('');
   const [newCurrency, setNewCurrency] = useState('USD');
