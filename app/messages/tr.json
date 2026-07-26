@@ -101,7 +101,14 @@
     "termsS5P2": "5.2. iDAELİK, yöneticileri, çalışanları veya ortakları, platformun kullanımından kaynaklanan kayıp kar veya veri kaybı dahil olmak üzere herhangi bir dolaylı, arızi, sonuçsal veya cezai zarardan hiçbir durumda sorumlu tutulamaz.",
     "termsS5Title": "Sorumluluğun Sınırlandırılması",
     "termsS6P1": "Bu şartları istediğimiz zaman değiştirme hakkımızı saklı tutarız. Önemli değişiklikler e-posta veya platform bildirimi yoluyla iletilecektir. Değişikliklerin ardından platformu kullanmaya devam etmeniz, revize edilmiş Şartlar ve Koşulları kabul ettiğiniz anlamına gelir.",
-    "termsS6Title": "Şartlarda Değişiklikler"
+    "termsS6Title": "Şartlarda Değişiklikler",
+    "mockConfirmed": "Onaylandı",
+    "mockNewBooking": "Yeni Rezervasyon",
+    "mockJustNow": "Az önce",
+    "mockConsultation": "Danışmanlık",
+    "placeholderFullName": "örn. Ayşe Yılmaz",
+    "placeholderEmail": "isim@example.com",
+    "placeholderMessage": "Size nasıl yardımcı olabiliriz?"
   },
   "auth": {
     "welcomeBack": "Tekrar Hoşgeldiniz",
@@ -145,7 +152,9 @@
     "errPasswordMismatch": "Şifreler eşleşmiyor",
     "errPasswordLength": "Şifre en az 8 karakter olmalıdır",
     "errAgreeTerms": "Hizmet Şartları ve Gizlilik Politikası'nı kabul etmelisiniz",
-    "errInvalidPhone": "Lütfen ülke kodu ile geçerli bir telefon numarası girin (ör: +905550123456)"
+    "errInvalidPhone": "Lütfen ülke kodu ile geçerli bir telefon numarası girin (ör: +905550123456)",
+    "adminUsername": "Yönetici Kullanıcı Adı",
+    "phonePlaceholder": "+1234567890"
   },
   "booking": {
     "fullName": "Tam Adı",
@@ -276,7 +285,10 @@
     "saving": "Kaydediliyor...",
     "noServices": "Henüz hizmet eklenmedi. Başlamak için \"Yeni Ekle\"ye tıklayın.",
     "deleteConfirm": "Bu hizmeti silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
-    "delete": "Sil"
+    "delete": "Sil",
+    "placeholderTitle": "örn. Tele-sağlık Danışmanlığı (İsteğe bağlı)",
+    "placeholderDesc": "Hizmeti kısaca açıklayın (İsteğe bağlı)...",
+    "placeholderPrice": "örn. 120.00 (İsteğe bağlı)"
   },
   "payment": {
     "title": "Ödeme ile Rezervasyonunuzu Güvenceye Alın",

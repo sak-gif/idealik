@@ -581,7 +581,7 @@ export default function ServicesTab() {
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                   className="input-field input-no-icon text-sm h-[46px]"
-                  placeholder="e.g. Telehealth Consultation (Optional)"
+                  placeholder={t('services.placeholderTitle')}
                   dir={detectLanguage(newTitle) === 'AR' ? 'rtl' : 'ltr'}
                 />
               </div>
@@ -593,7 +593,7 @@ export default function ServicesTab() {
                   onChange={(e) => setNewDesc(e.target.value)}
                   className="input-field input-no-icon text-sm resize-none"
                   rows={2}
-                  placeholder="Briefly describe the service (Optional)..."
+                  placeholder={t('services.placeholderDesc')}
                   style={{ paddingLeft: 16 }}
                   dir={detectLanguage(newDesc) === 'AR' ? 'rtl' : 'ltr'}
                 />
@@ -610,7 +610,7 @@ export default function ServicesTab() {
                     value={newPrice}
                     onChange={(e) => setNewPrice(e.target.value)}
                     className="input-field input-no-icon text-sm h-[46px] flex-1"
-                    placeholder="e.g. 120.00 (Optional)"
+                    placeholder={t('services.placeholderPrice')}
                   />
                   <select
                     value={newCurrency}

@@ -102,7 +102,7 @@ export default function HomePage() {
                           <div className="w-12 h-2 bg-neutral-200 rounded-full"></div>
                         </div>
                       </div>
-                      <div className="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-[10px] font-bold">Confirmed</div>
+                      <div className="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-[10px] font-bold">{t('landing.mockConfirmed')}</div>
                     </div>
                   ))}
                 </div>
@@ -114,8 +114,8 @@ export default function HomePage() {
                       <svg className="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-[#1A1C1C]">New Booking</div>
-                      <div className="text-[10px] text-text-light">Just now</div>
+                      <div className="text-xs font-bold text-[#1A1C1C]">{t('landing.mockNewBooking')}</div>
+                      <div className="text-[10px] text-text-light">{t('landing.mockJustNow')}</div>
                     </div>
                   </div>
                 </div>
@@ -125,7 +125,7 @@ export default function HomePage() {
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-xl bg-neutral-100 border border-neutral-200"></div>
                     <div>
-                      <div className="text-xs font-bold text-[#1A1C1C] mb-1">Consultation</div>
+                      <div className="text-xs font-bold text-[#1A1C1C] mb-1">{t('landing.mockConsultation')}</div>
                       <div className="text-xs font-extrabold text-primary">$120.00</div>
                     </div>
                   </div>
@@ -322,15 +322,15 @@ export default function HomePage() {
                     )}
                     <div>
                       <label className="block text-xs f-heading font-semibold mb-2" style={{ color: '#1A1C1C' }}>{t('landing.fullName')}</label>
-                      <input type="text" className="input-field input-no-icon w-full px-4" placeholder="Jane Doe" required value={contactForm.fullName} onChange={e => setContactForm({...contactForm, fullName: e.target.value})} />
+                      <input type="text" className="input-field input-no-icon w-full px-4" placeholder={t('landing.placeholderFullName')} required value={contactForm.fullName} onChange={e => setContactForm({...contactForm, fullName: e.target.value})} />
                     </div>
                     <div>
                       <label className="block text-xs f-heading font-semibold mb-2" style={{ color: '#1A1C1C' }}>{t('landing.emailAddress')}</label>
-                      <input type="email" className="input-field input-no-icon w-full px-4" placeholder="jane@example.com" required value={contactForm.email} onChange={e => setContactForm({...contactForm, email: e.target.value})} />
+                      <input type="email" className="input-field input-no-icon w-full px-4" placeholder={t('landing.placeholderEmail')} required value={contactForm.email} onChange={e => setContactForm({...contactForm, email: e.target.value})} />
                     </div>
                     <div>
                       <label className="block text-xs f-heading font-semibold mb-2" style={{ color: '#1A1C1C' }}>{t('landing.message')}</label>
-                      <textarea className="input-field input-no-icon w-full px-4 py-3 resize-none min-h-[120px]" placeholder="How can we help you?" required value={contactForm.message} onChange={e => setContactForm({...contactForm, message: e.target.value})}></textarea>
+                      <textarea className="input-field input-no-icon w-full px-4 py-3 resize-none min-h-[120px]" placeholder={t('landing.placeholderMessage')} required value={contactForm.message} onChange={e => setContactForm({...contactForm, message: e.target.value})}></textarea>
                     </div>
                     <button type="submit" disabled={contactStatus === 'loading'} className="btn-gold w-full py-4 mt-2 disabled:opacity-70">
                       {contactStatus === 'loading' ? t('landing.sending') : t('landing.sendMessage')}

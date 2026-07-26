@@ -5,8 +5,10 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SparkleDecor from '@/components/SparkleDecor';
 import { User, Lock, Trash2, Users, EyeOff, Eye, CheckCircle, MessageSquare, Mail } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function AdminPage() {
+  const { t } = useLanguage();
   const [token, setToken] = useState<string | null>(null);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -149,7 +151,7 @@ export default function AdminPage() {
                 <User className="input-icon" />
                 <input
                   type="text"
-                  placeholder="Admin Username"
+                  placeholder={t('auth.adminUsername')}
                   className="input-field"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
@@ -161,7 +163,7 @@ export default function AdminPage() {
                 <Lock className="input-icon" />
                 <input
                   type={showPw ? 'text' : 'password'}
-                  placeholder="Password"
+                  placeholder={t('auth.password')}
                   className="input-field"
                   style={{ paddingRight: 48 }}
                   value={password}

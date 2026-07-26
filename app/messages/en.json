@@ -101,7 +101,14 @@
     "privacyS5L2": "Request corrections to inaccurate or incomplete data.",
     "privacyS5L3": "Request the deletion of your account and associated data (\"Right to be Forgotten\").",
     "privacyS5L4": "Opt-out of non-essential communications.",
-    "privacyS5Footer": "To exercise these rights, practitioners may use their dashboard settings, and clients may contact us at privacy@idealik.com."
+    "privacyS5Footer": "To exercise these rights, practitioners may use their dashboard settings, and clients may contact us at privacy@idealik.com.",
+    "mockConfirmed": "Confirmed",
+    "mockNewBooking": "New Booking",
+    "mockJustNow": "Just now",
+    "mockConsultation": "Consultation",
+    "placeholderFullName": "Jane Doe",
+    "placeholderEmail": "jane@example.com",
+    "placeholderMessage": "How can we help you?"
   },
   "auth": {
     "welcomeBack": "Welcome Back",
@@ -142,14 +149,12 @@
     "verifyCreate": "Verify & Create Account",
     "didntReceive": "Didn't receive a code?",
     "resend": "Resend",
-    "pwTooShort": "Too short (min 8)",
-    "pwWeak": "Weak",
-    "pwGood": "Good",
-    "pwStrong": "Strong",
     "errPasswordMismatch": "Passwords do not match",
     "errPasswordLength": "Password must be at least 8 characters long",
     "errAgreeTerms": "You must agree to the Terms of Service and Privacy Policy",
-    "errInvalidPhone": "Please enter a valid phone number with country code (e.g., +1234567890)"
+    "errInvalidPhone": "Please enter a valid phone number with country code (e.g., +1234567890)",
+    "adminUsername": "Admin Username",
+    "phonePlaceholder": "+1234567890"
   },
   "booking": {
     "fullName": "Full Name",
@@ -280,7 +285,10 @@
     "saving": "Saving...",
     "noServices": "No services added yet. Click \"Add New\" to get started.",
     "deleteConfirm": "Are you sure you want to delete this service? This action cannot be undone.",
-    "delete": "Delete"
+    "delete": "Delete",
+    "placeholderTitle": "e.g. Telehealth Consultation (Optional)",
+    "placeholderDesc": "Briefly describe the service (Optional)...",
+    "placeholderPrice": "e.g. 120.00 (Optional)"
   },
   "payment": {
     "title": "Secure Your Booking with Payment",
