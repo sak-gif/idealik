@@ -299,6 +299,42 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
         body: JSON.stringify(bookingRequest)
       });
       if (res.ok) {
+        const responseData = await res.json();
+        
+        // Save to localStorage for customer notifications
+        try {
+          const providerName = providerProfile.businessName || providerProfile.name;
+          const newBookingData = {
+            id: responseData.id,
+            practitionerId: providerProfile.id,
+            practitionerName: providerName,
+            slotDate: dayObj.isoDate,
+            slotTime: slotTime,
+            status: 'pending'
+          };
+          
+          // Save booking tracker
+          const existingBookings = JSON.parse(localStorage.getItem('idealik_customer_bookings') || '[]');
+          existingBookings.push(newBookingData);
+          localStorage.setItem('idealik_customer_bookings', JSON.stringify(existingBookings));
+          
+          // Save initial notification
+          const notifs = JSON.parse(localStorage.getItem('idealik_customer_notifications') || '[]');
+          notifs.push({
+            id: 'c_' + Date.now().toString(),
+            titleKey: 'notifications.new',
+            textStr: `You booked a service from ${providerName} at ${dayObj.isoDate} ${slotTime}. We will inform you if your booking is accepted.`,
+            time: 'Just now',
+            unread: true
+          });
+          localStorage.setItem('idealik_customer_notifications', JSON.stringify(notifs));
+          
+          // Dispatch event so Header can update
+          window.dispatchEvent(new Event('customerNotificationUpdated'));
+        } catch (e) {
+          console.error('Local storage error', e);
+        }
+
         setSlots(prev => prev.map(s =>
           s.dayIdx === selectedSlot.dayIdx && s.timeIdx === selectedSlot.timeIdx
             ? { ...s, status: 'pending' }

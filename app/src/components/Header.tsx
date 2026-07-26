@@ -69,9 +69,10 @@ export default function Header() {
   useEffect(() => {
     let interval: NodeJS.Timeout;
 
-    const fetchNotifications = async () => {
+    // Practitioner Polling
+    const fetchPractitionerNotifications = async () => {
       const token = localStorage.getItem('idealik_token');
-      if (!token || isCustomerPage) return; // Only fetch for logged-in practitioners
+      if (!token) return;
 
       try {
         const res = await fetch('/api/bookings', {
@@ -81,22 +82,14 @@ export default function Header() {
         const data = await res.json();
         if (!Array.isArray(data)) return;
 
-        // Sort by newest and pick top 10
         const sorted = data.sort((a: any, b: any) => b.id - a.id).slice(0, 10);
         const newUnreadCount = sorted.filter(b => b.bookingStatus === 'pending').length;
 
         setNotifications(prev => {
           const oldUnreadCount = prev.filter(n => n.unread).length;
+          if (prev.length > 0 && newUnreadCount > oldUnreadCount) playSound();
           
-          // Play sound if there's a NEW unread booking that wasn't there before
-          // We only do this if it's not the initial load (prev length > 1)
-          if (prev.length > 1 && newUnreadCount > oldUnreadCount) {
-             playSound();
-          }
-
-          if (sorted.length === 0) {
-            return [{ id: 'default-1', titleKey: 'notifications.system', textKey: 'notifications.systemText', time: 'Just now', unread: false }];
-          }
+          if (sorted.length === 0) return []; // No static fallback
 
           return sorted.map(b => {
             let titleKey = 'notifications.system';
@@ -113,28 +106,90 @@ export default function Header() {
 
             const textStr = `${b.clientName} • ${b.slotDate} • ${b.slotTime}`;
 
-            return {
-              id: b.id,
-              titleKey,
-              textStr,
-              textKey: '',
-              time: '',
-              unread
-            };
+            return { id: b.id, titleKey, textStr, textKey: '', time: '', unread };
           });
         });
-      } catch (e) {
-        // Silent catch for polling
-      }
+      } catch (e) { }
     };
 
-    if (isLoggedIn && !isCustomerPage) {
-      fetchNotifications();
-      interval = setInterval(fetchNotifications, 10000); // Poll every 10s
-    }
+    // Customer Polling
+    const fetchCustomerNotifications = async () => {
+      try {
+        const notifs = JSON.parse(localStorage.getItem('idealik_customer_notifications') || '[]');
+        const bookings = JSON.parse(localStorage.getItem('idealik_customer_bookings') || '[]');
+        
+        let stateUpdated = false;
+        
+        // Update UI with current notifs
+        setNotifications(prev => {
+          const oldUnread = prev.filter(n => n.unread).length;
+          const newUnread = notifs.filter((n: any) => n.unread).length;
+          if (prev.length > 0 && newUnread > oldUnread) playSound();
+          return notifs.reverse(); // Newest first
+        });
+
+        // Group pending bookings by practitioner
+        const pendingBookings = bookings.filter((b: any) => b.status === 'pending');
+        if (pendingBookings.length === 0) return;
+
+        const practitionerIds = [...new Set(pendingBookings.map((b: any) => b.practitionerId))];
+        
+        await Promise.all(practitionerIds.map(async (pid) => {
+          const res = await fetch(`/api/bookings/public/bookings/${pid}`);
+          if (!res.ok) return;
+          const pubBookings = await res.json();
+          
+          let changed = false;
+          
+          pendingBookings.filter((b: any) => b.practitionerId === pid).forEach((pb: any) => {
+            const fresh = pubBookings.find((fb: any) => fb.id === pb.id);
+            if (fresh && fresh.status !== 'pending') {
+              // Status changed!
+              pb.status = fresh.status;
+              changed = true;
+              stateUpdated = true;
+              
+              const titleKey = fresh.status === 'confirmed' ? 'schedule.confirmed' : 'schedule.declineBtn';
+              const textStr = `Your booking with ${pb.practitionerName} on ${pb.slotDate} at ${pb.slotTime} was ${fresh.status}.`;
+              
+              notifs.push({
+                id: 'c_' + Date.now() + '_' + pb.id,
+                titleKey,
+                textStr,
+                time: 'Just now',
+                unread: true
+              });
+            }
+          });
+          
+          if (changed) {
+            localStorage.setItem('idealik_customer_bookings', JSON.stringify(bookings));
+            localStorage.setItem('idealik_customer_notifications', JSON.stringify(notifs));
+          }
+        }));
+
+        if (stateUpdated) {
+          setNotifications(notifs.reverse());
+          playSound();
+        }
+
+      } catch (e) { }
+    };
+
+    const updateNotifications = () => {
+      if (isCustomerPage) fetchCustomerNotifications();
+      else if (isLoggedIn) fetchPractitionerNotifications();
+    };
+
+    updateNotifications();
+    interval = setInterval(updateNotifications, 10000); // Poll every 10s
+    
+    const handleCustomEvent = () => updateNotifications();
+    window.addEventListener('customerNotificationUpdated', handleCustomEvent);
 
     return () => {
       if (interval) clearInterval(interval);
+      window.removeEventListener('customerNotificationUpdated', handleCustomEvent);
     };
   }, [isLoggedIn, isCustomerPage]);
 
