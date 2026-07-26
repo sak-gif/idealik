@@ -18,9 +18,8 @@ export default function Header() {
   const isHomePage = pathname === '/';
 
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [notifications, setNotifications] = useState([
-    { id: 1, titleKey: 'notifications.new', textKey: 'notifications.demoText', time: '1m', unread: true },
-    { id: 2, titleKey: 'notifications.system', textKey: 'notifications.systemText', time: '2h', unread: false }
+  const [notifications, setNotifications] = useState<any[]>([
+    { id: 'default-1', titleKey: 'notifications.system', textKey: 'notifications.systemText', time: 'Just now', unread: false }
   ]);
   const hasUnread = notifications.some(n => n.unread);
 
@@ -65,6 +64,79 @@ export default function Header() {
       setActiveSection('');
     }
   }, [pathname]);
+
+  // --- Real-time Notifications Polling ---
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+
+    const fetchNotifications = async () => {
+      const token = localStorage.getItem('idealik_token');
+      if (!token || isCustomerPage) return; // Only fetch for logged-in practitioners
+
+      try {
+        const res = await fetch('/api/bookings', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!Array.isArray(data)) return;
+
+        // Sort by newest and pick top 10
+        const sorted = data.sort((a: any, b: any) => b.id - a.id).slice(0, 10);
+        const newUnreadCount = sorted.filter(b => b.bookingStatus === 'pending').length;
+
+        setNotifications(prev => {
+          const oldUnreadCount = prev.filter(n => n.unread).length;
+          
+          // Play sound if there's a NEW unread booking that wasn't there before
+          // We only do this if it's not the initial load (prev length > 1)
+          if (prev.length > 1 && newUnreadCount > oldUnreadCount) {
+             playSound();
+          }
+
+          if (sorted.length === 0) {
+            return [{ id: 'default-1', titleKey: 'notifications.system', textKey: 'notifications.systemText', time: 'Just now', unread: false }];
+          }
+
+          return sorted.map(b => {
+            let titleKey = 'notifications.system';
+            let unread = false;
+
+            if (b.bookingStatus === 'pending') {
+              titleKey = 'notifications.new';
+              unread = true;
+            } else if (b.bookingStatus === 'confirmed') {
+              titleKey = 'schedule.confirmed';
+            } else if (b.bookingStatus === 'declined') {
+              titleKey = 'schedule.declineBtn';
+            }
+
+            const textStr = `${b.clientName} • ${b.slotDate} • ${b.slotTime}`;
+
+            return {
+              id: b.id,
+              titleKey,
+              textStr,
+              textKey: '',
+              time: '',
+              unread
+            };
+          });
+        });
+      } catch (e) {
+        // Silent catch for polling
+      }
+    };
+
+    if (isLoggedIn && !isCustomerPage) {
+      fetchNotifications();
+      interval = setInterval(fetchNotifications, 10000); // Poll every 10s
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isLoggedIn, isCustomerPage]);
 
   const handleLogout = async () => {
     const token = localStorage.getItem('idealik_token');
@@ -165,9 +237,9 @@ export default function Header() {
                       <div key={n.id} className={`p-4 border-b border-outline-variant/5 hover:bg-surface-container/20 transition-colors cursor-pointer ${n.unread ? 'bg-primary/5' : ''}`}>
                         <div className="flex justify-between items-start mb-1">
                           <h4 className={`text-sm ${n.unread ? 'font-bold text-text-main' : 'font-semibold text-text-light'}`}>{t(n.titleKey)}</h4>
-                          <span className="text-[10px] text-text-muted whitespace-nowrap ml-2">{n.time}</span>
+                          {n.time && <span className="text-[10px] text-text-muted whitespace-nowrap ml-2">{n.time}</span>}
                         </div>
-                        <p className="text-xs text-text-muted leading-relaxed line-clamp-2">{t(n.textKey)}</p>
+                        <p className="text-xs text-text-muted leading-relaxed line-clamp-2">{n.textStr || t(n.textKey)}</p>
                       </div>
                     ))
                   )}
