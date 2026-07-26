@@ -17,6 +17,18 @@ public class Practitioner {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "description_ar", columnDefinition = "TEXT")
+    private String descriptionAr;
+
+    @Column(name = "description_tr", columnDefinition = "TEXT")
+    private String descriptionTr;
+
+    @Column(name = "name_ar")
+    private String nameAr;
+
+    @Column(name = "name_tr")
+    private String nameTr;
+
     @Column(name = "photo_url", columnDefinition = "LONGTEXT")
     private String photoUrl;
 
@@ -31,6 +43,12 @@ public class Practitioner {
 
     @Column(name = "business_name")
     private String businessName;
+
+    @Column(name = "business_name_ar")
+    private String businessNameAr;
+
+    @Column(name = "business_name_tr")
+    private String businessNameTr;
 
     @Column(name = "sharing_link")
     private String sharingLink;
@@ -64,6 +82,38 @@ public class Practitioner {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getDescriptionAr() {
+        return descriptionAr;
+    }
+
+    public void setDescriptionAr(String descriptionAr) {
+        this.descriptionAr = descriptionAr;
+    }
+
+    public String getDescriptionTr() {
+        return descriptionTr;
+    }
+
+    public void setDescriptionTr(String descriptionTr) {
+        this.descriptionTr = descriptionTr;
+    }
+
+    public String getNameAr() {
+        return nameAr;
+    }
+
+    public void setNameAr(String nameAr) {
+        this.nameAr = nameAr;
+    }
+
+    public String getNameTr() {
+        return nameTr;
+    }
+
+    public void setNameTr(String nameTr) {
+        this.nameTr = nameTr;
     }
 
     public String getPhotoUrl() {
@@ -104,6 +154,22 @@ public class Practitioner {
 
     public void setBusinessName(String businessName) {
         this.businessName = businessName;
+    }
+
+    public String getBusinessNameAr() {
+        return businessNameAr;
+    }
+
+    public void setBusinessNameAr(String businessNameAr) {
+        this.businessNameAr = businessNameAr;
+    }
+
+    public String getBusinessNameTr() {
+        return businessNameTr;
+    }
+
+    public void setBusinessNameTr(String businessNameTr) {
+        this.businessNameTr = businessNameTr;
     }
 
     public String getSharingLink() {

@@ -90,7 +90,13 @@ public class AuthService {
             practitioner.getDescription(),
             practitioner.getPhotoUrl(),
             practitioner.getSharingLink(),
-            practitioner.getQrCodeUrl()
+            practitioner.getQrCodeUrl(),
+            practitioner.getDescriptionAr(),
+            practitioner.getDescriptionTr(),
+            practitioner.getBusinessNameAr(),
+            practitioner.getBusinessNameTr(),
+            practitioner.getNameAr(),
+            practitioner.getNameTr()
         );
     }
 
@@ -116,7 +122,13 @@ public class AuthService {
             practitioner.getDescription(),
             practitioner.getPhotoUrl(),
             practitioner.getSharingLink(),
-            practitioner.getQrCodeUrl()
+            practitioner.getQrCodeUrl(),
+            practitioner.getDescriptionAr(),
+            practitioner.getDescriptionTr(),
+            practitioner.getBusinessNameAr(),
+            practitioner.getBusinessNameTr(),
+            practitioner.getNameAr(),
+            practitioner.getNameTr()
         );
     }
 

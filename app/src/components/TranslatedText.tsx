@@ -5,19 +5,23 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useTranslatedText } from '@/lib/translate';
 
 interface TranslatedTextProps {
-  text: string;
+  en: string;
+  ar?: string;
+  tr?: string;
 }
 
 /**
- * A handy component for translating dynamic, user-generated text inline.
+ * A handy component for displaying dynamic translations from the database.
  * Automatically respects the current language from LanguageContext.
  * 
  * Example:
- *   <TranslatedText text={service.title} />
+ *   <TranslatedText en={service.title} ar={service.titleAr} tr={service.titleTr} />
  */
-export default function TranslatedText({ text }: TranslatedTextProps) {
+export default function TranslatedText({ en, ar, tr }: TranslatedTextProps) {
   const { language } = useLanguage();
-  const translated = useTranslatedText(text, language);
   
-  return <>{translated}</>;
+  if (language === 'AR' && ar) return <>{ar}</>;
+  if (language === 'TR' && tr) return <>{tr}</>;
+  
+  return <>{en}</>;
 }

@@ -14,6 +14,15 @@ public class PractitionerProfileDto {
     private String phone;
 
     private String description;
+    
+    private String descriptionAr;
+    private String descriptionTr;
+    
+    private String businessNameAr;
+    private String businessNameTr;
+    
+    private String nameAr;
+    private String nameTr;
 
     @NotBlank(message = "Email is required")
     private String email;
@@ -68,5 +77,53 @@ public class PractitionerProfileDto {
 
     public void setPhotoUrl(String photoUrl) {
         this.photoUrl = photoUrl;
+    }
+
+    public String getDescriptionAr() {
+        return descriptionAr;
+    }
+
+    public void setDescriptionAr(String descriptionAr) {
+        this.descriptionAr = descriptionAr;
+    }
+
+    public String getDescriptionTr() {
+        return descriptionTr;
+    }
+
+    public void setDescriptionTr(String descriptionTr) {
+        this.descriptionTr = descriptionTr;
+    }
+
+    public String getBusinessNameAr() {
+        return businessNameAr;
+    }
+
+    public void setBusinessNameAr(String businessNameAr) {
+        this.businessNameAr = businessNameAr;
+    }
+
+    public String getBusinessNameTr() {
+        return businessNameTr;
+    }
+
+    public void setBusinessNameTr(String businessNameTr) {
+        this.businessNameTr = businessNameTr;
+    }
+
+    public String getNameAr() {
+        return nameAr;
+    }
+
+    public void setNameAr(String nameAr) {
+        this.nameAr = nameAr;
+    }
+
+    public String getNameTr() {
+        return nameTr;
+    }
+
+    public void setNameTr(String nameTr) {
+        this.nameTr = nameTr;
     }
 }

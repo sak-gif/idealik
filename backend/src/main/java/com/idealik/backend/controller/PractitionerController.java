@@ -125,15 +125,20 @@ public class PractitionerController {
             Practitioner practitioner = practitionerService.getPractitionerByPhone(phoneNumber);
             List<ServiceEntity> services = practitionerService.getServices(practitioner);
             // Don't send sensitive details like password hash, email can be included if public
-            return ResponseEntity.ok(Map.of(
-                "id", practitioner.getId(),
-                "name", practitioner.getName() != null ? practitioner.getName() : "",
-                "businessName", practitioner.getBusinessName() != null ? practitioner.getBusinessName() : "",
-                "description", practitioner.getDescription() != null ? practitioner.getDescription() : "",
-                "photoUrl", practitioner.getPhotoUrl() != null ? practitioner.getPhotoUrl() : "",
-                "phoneNumber", practitioner.getPhoneNumber() != null ? practitioner.getPhoneNumber() : "",
-                "services", services
-            ));
+            Map<String, Object> response = new java.util.HashMap<>();
+            response.put("id", practitioner.getId());
+            response.put("name", practitioner.getName() != null ? practitioner.getName() : "");
+            response.put("businessName", practitioner.getBusinessName() != null ? practitioner.getBusinessName() : "");
+            response.put("businessNameAr", practitioner.getBusinessNameAr() != null ? practitioner.getBusinessNameAr() : "");
+            response.put("businessNameTr", practitioner.getBusinessNameTr() != null ? practitioner.getBusinessNameTr() : "");
+            response.put("description", practitioner.getDescription() != null ? practitioner.getDescription() : "");
+            response.put("descriptionAr", practitioner.getDescriptionAr() != null ? practitioner.getDescriptionAr() : "");
+            response.put("descriptionTr", practitioner.getDescriptionTr() != null ? practitioner.getDescriptionTr() : "");
+            response.put("photoUrl", practitioner.getPhotoUrl() != null ? practitioner.getPhotoUrl() : "");
+            response.put("phoneNumber", practitioner.getPhoneNumber() != null ? practitioner.getPhoneNumber() : "");
+            response.put("services", services);
+            
+            return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
         }

@@ -375,8 +375,10 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
                     <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5Z" />
                   </svg>
                 </div>
-                <h2 className="f-heading font-black text-2xl mb-1 text-text-main">{providerProfile?.businessName || t('customer.bio')}</h2>
-                <p className="text-xs f-heading max-w-md mx-auto leading-relaxed text-text-light mb-2">{providerProfile?.description ? <TranslatedText text={providerProfile.description} /> : t('customer.bioFull')}</p>
+                <h2 className="f-heading font-black text-2xl mb-1 text-text-main">
+                  {providerProfile?.businessName ? <TranslatedText en={providerProfile.businessName} ar={providerProfile.businessNameAr} tr={providerProfile.businessNameTr} /> : t('customer.bio')}
+                </h2>
+                <p className="text-xs f-heading max-w-md mx-auto leading-relaxed text-text-light mb-2">{providerProfile?.description ? <TranslatedText en={providerProfile.description} ar={providerProfile.descriptionAr} tr={providerProfile.descriptionTr} /> : t('customer.bioFull')}</p>
               </div>
 
               {/* Service Cards */}
@@ -395,8 +397,8 @@ export default function BookingPage({ params }: { params: { phoneNumber: string 
                   >
                     <Image src={svc.photoUrl || '/telehealth.png'} alt={svc.title} width={100} height={80} className="w-[90px] h-[72px] rounded-lg object-cover flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <h3 className="f-heading font-bold text-sm mb-1 text-text-main"><TranslatedText text={svc.title} />{svc.price ? ` - ${formatPrice(svc.price, language, svc.currency)}` : ''}</h3>
-                      <p className="text-xs leading-relaxed text-text-muted"><TranslatedText text={svc.description} /></p>
+                      <h3 className="f-heading font-bold text-sm mb-1 text-text-main"><TranslatedText en={svc.title} ar={svc.titleAr} tr={svc.titleTr} />{svc.price ? ` - ${formatPrice(svc.price, language, svc.currency)}` : ''}</h3>
+                      <p className="text-xs leading-relaxed text-text-muted"><TranslatedText en={svc.description} ar={svc.descriptionAr} tr={svc.descriptionTr} /></p>
                     </div>
                   </div>
                 ))}

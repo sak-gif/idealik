@@ -11,8 +11,14 @@ public class AuthResponse {
     private String photoUrl;
     private String sharingLink;
     private String qrCodeUrl;
+    private String descriptionAr;
+    private String descriptionTr;
+    private String businessNameAr;
+    private String businessNameTr;
+    private String nameAr;
+    private String nameTr;
 
-    public AuthResponse(String token, Long id, String email, String name, String businessName, String phoneNumber, String description, String photoUrl, String sharingLink, String qrCodeUrl) {
+    public AuthResponse(String token, Long id, String email, String name, String businessName, String phoneNumber, String description, String photoUrl, String sharingLink, String qrCodeUrl, String descriptionAr, String descriptionTr, String businessNameAr, String businessNameTr, String nameAr, String nameTr) {
         this.token = token;
         this.id = id;
         this.email = email;
@@ -23,6 +29,12 @@ public class AuthResponse {
         this.photoUrl = photoUrl;
         this.sharingLink = sharingLink;
         this.qrCodeUrl = qrCodeUrl;
+        this.descriptionAr = descriptionAr;
+        this.descriptionTr = descriptionTr;
+        this.businessNameAr = businessNameAr;
+        this.businessNameTr = businessNameTr;
+        this.nameAr = nameAr;
+        this.nameTr = nameTr;
     }
 
     public String getToken() {
@@ -104,4 +116,22 @@ public class AuthResponse {
     public void setQrCodeUrl(String qrCodeUrl) {
         this.qrCodeUrl = qrCodeUrl;
     }
+
+    public String getDescriptionAr() { return descriptionAr; }
+    public void setDescriptionAr(String descriptionAr) { this.descriptionAr = descriptionAr; }
+
+    public String getDescriptionTr() { return descriptionTr; }
+    public void setDescriptionTr(String descriptionTr) { this.descriptionTr = descriptionTr; }
+
+    public String getBusinessNameAr() { return businessNameAr; }
+    public void setBusinessNameAr(String businessNameAr) { this.businessNameAr = businessNameAr; }
+
+    public String getBusinessNameTr() { return businessNameTr; }
+    public void setBusinessNameTr(String businessNameTr) { this.businessNameTr = businessNameTr; }
+
+    public String getNameAr() { return nameAr; }
+    public void setNameAr(String nameAr) { this.nameAr = nameAr; }
+
+    public String getNameTr() { return nameTr; }
+    public void setNameTr(String nameTr) { this.nameTr = nameTr; }
 }

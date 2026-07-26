@@ -38,29 +38,30 @@ public class DataSeeder implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        String email = "medcheikh@gmail.com";
+        String email = "Muhamad.mahmud.sak@gmail.com";
 
-        // Only seed if the practitioner doesn't already exist
-        if (practitionerRepository.findByEmail(email).isPresent()) {
-            System.out.println("[DataSeeder] Mohamed Cheikh account already exists. Skipping seed.");
-            return;
-        }
+        // Reset the database (wipe everything)
+        serviceRepository.deleteAll();
+        scheduleConfigurationRepository.deleteAll();
+        practitionerRepository.deleteAll();
+        
+        System.out.println("[DataSeeder] Database reset successfully.");
 
-        System.out.println("[DataSeeder] Seeding Mohamed Cheikh's practitioner account...");
+        System.out.println("[DataSeeder] Seeding developer's practitioner account...");
 
         // ── 1. Create Practitioner ──
         Practitioner practitioner = new Practitioner();
-        practitioner.setName("Mohamed Cheickh");
+        practitioner.setName("Muhamad Mahmud Sak");
         practitioner.setEmail(email);
-        practitioner.setPasswordHash(passwordEncoder.encode("med"));
-        practitioner.setBusinessName("Mohamed Cheickh");
+        practitioner.setPasswordHash(passwordEncoder.encode("developper"));
+        practitioner.setBusinessName("Sak Dev");
         practitioner.setPhoneNumber("+212600000000");
         practitioner.setDescription(
             "Compassionate Primary Care Physician. We provide personalized health assessments " +
             "and comprehensive IVI plans to optimize your well-being both in secure tell-health."
         );
         practitioner.setPhotoUrl("/doctor-avatar.png");
-        practitioner.setSharingLink("idealnowpaa.com/medcheikh");
+        practitioner.setSharingLink("idealnowpaa.com/sak");
         practitioner.setQrCodeUrl("");
 
         practitioner = practitionerRepository.save(practitioner);
@@ -105,9 +106,9 @@ public class DataSeeder implements CommandLineRunner {
         config.setPractitioner(practitioner);
         scheduleConfigurationRepository.save(config);
 
-        System.out.println("[DataSeeder] ✅ Mohamed Cheikh seeded successfully!");
+        System.out.println("[DataSeeder] ✅ Developer seeded successfully!");
         System.out.println("[DataSeeder]    Email: " + email);
-        System.out.println("[DataSeeder]    Password: med");
+        System.out.println("[DataSeeder]    Password: developper");
         System.out.println("[DataSeeder]    Services: 3 (Telehealth, Diagnostic, Prescription)");
         System.out.println("[DataSeeder]    Schedule: Published, 09:00-20:00");
     }

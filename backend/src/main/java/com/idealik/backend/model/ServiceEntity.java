@@ -15,8 +15,20 @@ public class ServiceEntity {
     @Column
     private String title;
 
+    @Column(name = "title_ar")
+    private String titleAr;
+
+    @Column(name = "title_tr")
+    private String titleTr;
+
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @Column(name = "description_ar", columnDefinition = "TEXT")
+    private String descriptionAr;
+
+    @Column(name = "description_tr", columnDefinition = "TEXT")
+    private String descriptionTr;
 
     @Column(precision = 10, scale = 2)
     private BigDecimal price;
@@ -49,12 +61,44 @@ public class ServiceEntity {
         this.title = title;
     }
 
+    public String getTitleAr() {
+        return titleAr;
+    }
+
+    public void setTitleAr(String titleAr) {
+        this.titleAr = titleAr;
+    }
+
+    public String getTitleTr() {
+        return titleTr;
+    }
+
+    public void setTitleTr(String titleTr) {
+        this.titleTr = titleTr;
+    }
+
     public String getDescription() {
         return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getDescriptionAr() {
+        return descriptionAr;
+    }
+
+    public void setDescriptionAr(String descriptionAr) {
+        this.descriptionAr = descriptionAr;
+    }
+
+    public String getDescriptionTr() {
+        return descriptionTr;
+    }
+
+    public void setDescriptionTr(String descriptionTr) {
+        this.descriptionTr = descriptionTr;
     }
 
     public BigDecimal getPrice() {

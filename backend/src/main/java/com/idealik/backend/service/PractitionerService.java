@@ -22,9 +22,15 @@ public class PractitionerService {
 
     public Practitioner updateProfile(Practitioner practitioner, PractitionerProfileDto dto) {
         practitioner.setName(dto.getName());
+        practitioner.setNameAr(dto.getNameAr());
+        practitioner.setNameTr(dto.getNameTr());
         practitioner.setBusinessName(dto.getBusinessName());
+        practitioner.setBusinessNameAr(dto.getBusinessNameAr());
+        practitioner.setBusinessNameTr(dto.getBusinessNameTr());
         practitioner.setPhoneNumber(dto.getPhone());
         practitioner.setDescription(dto.getDescription());
+        practitioner.setDescriptionAr(dto.getDescriptionAr());
+        practitioner.setDescriptionTr(dto.getDescriptionTr());
         practitioner.setEmail(dto.getEmail());
         if (dto.getPhotoUrl() != null) {
             practitioner.setPhotoUrl(dto.getPhotoUrl());
@@ -60,7 +66,11 @@ public class PractitionerService {
         }
 
         existing.setTitle(serviceDetails.getTitle());
+        existing.setTitleAr(serviceDetails.getTitleAr());
+        existing.setTitleTr(serviceDetails.getTitleTr());
         existing.setDescription(serviceDetails.getDescription());
+        existing.setDescriptionAr(serviceDetails.getDescriptionAr());
+        existing.setDescriptionTr(serviceDetails.getDescriptionTr());
         existing.setPrice(serviceDetails.getPrice());
         if (serviceDetails.getPhotoUrl() != null) {
             existing.setPhotoUrl(serviceDetails.getPhotoUrl());
