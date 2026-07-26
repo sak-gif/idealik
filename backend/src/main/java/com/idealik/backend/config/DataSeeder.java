@@ -35,15 +35,23 @@ public class DataSeeder implements CommandLineRunner {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private jakarta.persistence.EntityManager entityManager;
+
     @Override
     @Transactional
     public void run(String... args) {
         String email = "Muhamad.mahmud.sak@gmail.com";
 
-        // Reset the database (wipe everything)
-        serviceRepository.deleteAll();
-        scheduleConfigurationRepository.deleteAll();
-        practitionerRepository.deleteAll();
+        // Reset the database (wipe everything in correct foreign-key order)
+        entityManager.createNativeQuery("SET FOREIGN_KEY_CHECKS = 0").executeUpdate();
+        entityManager.createNativeQuery("TRUNCATE TABLE bookings").executeUpdate();
+        entityManager.createNativeQuery("TRUNCATE TABLE exception_slots").executeUpdate();
+        entityManager.createNativeQuery("TRUNCATE TABLE recurring_lockins").executeUpdate();
+        entityManager.createNativeQuery("TRUNCATE TABLE services").executeUpdate();
+        entityManager.createNativeQuery("TRUNCATE TABLE schedule_configurations").executeUpdate();
+        entityManager.createNativeQuery("TRUNCATE TABLE practitioners").executeUpdate();
+        entityManager.createNativeQuery("SET FOREIGN_KEY_CHECKS = 1").executeUpdate();
         
         System.out.println("[DataSeeder] Database reset successfully.");
 
