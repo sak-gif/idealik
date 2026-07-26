@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useLanguage } from '@/context/LanguageContext';
-import { formatPrice } from '@/lib/translate';
+import { formatPrice, translateDynamic } from '@/lib/translate';
 import { Settings, Trash2, Plus, QrCode, X, Eye, CheckCircle, AlertTriangle, User } from 'lucide-react';
 import TranslatedText from '@/components/TranslatedText';
 import QRCode from 'react-qr-code';
@@ -48,6 +48,16 @@ export default function ServicesTab() {
     if (/[\u0600-\u06FF]/.test(text)) return 'AR';
     if (/[çğıöşüÇĞIÖŞÜ]/.test(text)) return 'TR';
     return 'EN';
+  };
+
+  const getTranslatedFields = async (text: string) => {
+    if (!text) return { en: '', ar: '', tr: '' };
+    const lang = detectLanguage(text);
+    return {
+      en: lang === 'EN' ? text : await translateDynamic(text, 'EN', lang),
+      ar: lang === 'AR' ? text : await translateDynamic(text, 'AR', lang),
+      tr: lang === 'TR' ? text : await translateDynamic(text, 'TR', lang)
+    };
   };
 
   useEffect(() => {
@@ -110,6 +120,9 @@ export default function ServicesTab() {
     const token = localStorage.getItem('idealik_token');
     if (!token) return;
     try {
+      const bNames = await getTranslatedFields(businessName);
+      const descs = await getTranslatedFields(description);
+
       const res = await fetch('/api/practitioners/profile', {
         method: 'PUT',
         headers: {
@@ -118,14 +131,14 @@ export default function ServicesTab() {
         },
         body: JSON.stringify({
           name: name || 'Practitioner',
-          businessName: detectLanguage(businessName) === 'EN' ? businessName : '',
-          businessNameAr: detectLanguage(businessName) === 'AR' ? businessName : '',
-          businessNameTr: detectLanguage(businessName) === 'TR' ? businessName : '',
+          businessName: bNames.en,
+          businessNameAr: bNames.ar,
+          businessNameTr: bNames.tr,
           phone: phoneNumber,
           email,
-          description: detectLanguage(description) === 'EN' ? description : '',
-          descriptionAr: detectLanguage(description) === 'AR' ? description : '',
-          descriptionTr: detectLanguage(description) === 'TR' ? description : '',
+          description: descs.en,
+          descriptionAr: descs.ar,
+          descriptionTr: descs.tr,
           photoUrl: newPhotoDataUrl
         })
       });
@@ -170,6 +183,9 @@ export default function ServicesTab() {
         throw new Error('Incorrect password');
       }
 
+      const bNames = await getTranslatedFields(businessName);
+      const descs = await getTranslatedFields(description);
+
       const res = await fetch('/api/practitioners/profile', {
         method: 'PUT',
         headers: {
@@ -178,14 +194,14 @@ export default function ServicesTab() {
         },
         body: JSON.stringify({
           name: name || 'Practitioner',
-          businessName: detectLanguage(businessName) === 'EN' ? businessName : '',
-          businessNameAr: detectLanguage(businessName) === 'AR' ? businessName : '',
-          businessNameTr: detectLanguage(businessName) === 'TR' ? businessName : '',
+          businessName: bNames.en,
+          businessNameAr: bNames.ar,
+          businessNameTr: bNames.tr,
           phone: phoneNumber,
           email,
-          description: detectLanguage(description) === 'EN' ? description : '',
-          descriptionAr: detectLanguage(description) === 'AR' ? description : '',
-          descriptionTr: detectLanguage(description) === 'TR' ? description : '',
+          description: descs.en,
+          descriptionAr: descs.ar,
+          descriptionTr: descs.tr,
           photoUrl
         })
       });
@@ -240,6 +256,9 @@ export default function ServicesTab() {
           : '/api/practitioners/services';
       const method = isEditing ? 'PUT' : 'POST';
 
+      const tNames = await getTranslatedFields(newTitle);
+      const dNames = await getTranslatedFields(newDesc);
+
       const res = await fetch(url, {
         method: method,
         headers: {
@@ -247,12 +266,12 @@ export default function ServicesTab() {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          title: detectLanguage(newTitle) === 'EN' ? newTitle : '',
-          titleAr: detectLanguage(newTitle) === 'AR' ? newTitle : '',
-          titleTr: detectLanguage(newTitle) === 'TR' ? newTitle : '',
-          description: detectLanguage(newDesc) === 'EN' ? newDesc : '',
-          descriptionAr: detectLanguage(newDesc) === 'AR' ? newDesc : '',
-          descriptionTr: detectLanguage(newDesc) === 'TR' ? newDesc : '',
+          title: tNames.en,
+          titleAr: tNames.ar,
+          titleTr: tNames.tr,
+          description: dNames.en,
+          descriptionAr: dNames.ar,
+          descriptionTr: dNames.tr,
           price: newPrice.toString().trim() !== '' ? parseFloat(newPrice.toString()) : null,
           currency: newCurrency,
           photoUrl: newImage

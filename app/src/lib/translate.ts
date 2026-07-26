@@ -61,11 +61,12 @@ function writeLocalCache(key: string, value: string): void {
 export async function translateDynamic(
   text: string,
   target: string,
+  source: string = 'EN'
 ): Promise<string> {
-  // No translation needed if target is English (source language)
-  if (!text || target === 'EN') return text;
+  // No translation needed if target is the same as source
+  if (!text || target === source) return text;
 
-  const key = cacheKey(text, target);
+  const key = cacheKey(`${source}_${text}`, target);
 
   // 1. Memory cache
   const mem = memoryCache.get(key);
@@ -86,7 +87,7 @@ export async function translateDynamic(
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         q: text,
-        source: 'en',
+        source: LANG_MAP[source] || 'auto',
         target: targetCode,
         format: 'text',
       }),
